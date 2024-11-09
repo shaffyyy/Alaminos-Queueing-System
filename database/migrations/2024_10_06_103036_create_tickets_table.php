@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
+            $table->string('queue_number')->nullable(); // Added queue_number column
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('service_id')->constrained('services')->onDelete('cascade');
             $table->foreignId('window_id')->nullable()->constrained('windows')->onDelete('cascade');
             $table->enum('status', ['waiting', 'in-service', 'completed'])->default('waiting');
-            $table->enum('verify', ['verified', 'unverified'])->default('unverified'); // New verify column
+            $table->enum('verify', ['verified', 'unverified'])->default('unverified'); // Verify column
             $table->timestamps();
         });
     }

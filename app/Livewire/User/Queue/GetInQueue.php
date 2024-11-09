@@ -12,7 +12,6 @@ class GetInQueue extends Component
 {
     public $service;
     public $queueNumber;
-    public $estimatedWaitTime;
     public $pendingVerificationMessage = false;
 
     public function mount()
@@ -28,12 +27,10 @@ class GetInQueue extends Component
                         ->first();
 
         if ($ticket) {
-            $this->queueNumber = $ticket->queue_number; // Retrieve queue number directly
-            $this->estimatedWaitTime = random_int(5, 15); // Or replace with actual calculation
+            $this->queueNumber = $ticket->queue_number;
             $this->pendingVerificationMessage = ($ticket->status === 'waiting');
         }
     }
-
 
     public function joinQueue()
     {
@@ -51,6 +48,7 @@ class GetInQueue extends Component
         if ($availableWindow) {
             $serviceName = Service::find($this->service)->name;
 
+            // Define prefix based on service
             $queuePrefix = match ($serviceName) {
                 'Cedula' => 'C',
                 'Business tax' => 'BT',
@@ -60,9 +58,11 @@ class GetInQueue extends Component
                 default => 'Q'
             };
 
+            // Count tickets for this service to keep numbering unique per service
             $ticketCount = Ticket::where('service_id', $this->service)->count() + 1;
             $queueNumber = $queuePrefix . str_pad($ticketCount, 3, '0', STR_PAD_LEFT);
 
+            // Create ticket with queue_number
             $ticket = Ticket::create([
                 'user_id' => Auth::id(),
                 'service_id' => $this->service,
@@ -72,7 +72,6 @@ class GetInQueue extends Component
             ]);
 
             $this->queueNumber = $ticket->queue_number;
-            $this->estimatedWaitTime = random_int(5, 15);
             $this->pendingVerificationMessage = true;
 
             session()->flash('message', 'You have joined the queue!');
@@ -81,6 +80,8 @@ class GetInQueue extends Component
             session()->flash('error', 'No available windows at the moment.');
         }
     }
+
+
 
 
     public function render()

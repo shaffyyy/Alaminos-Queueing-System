@@ -27,19 +27,28 @@
                 <table class="min-w-full bg-white border">
                     <thead>
                         <tr>
-                            <th class="py-2 px-4 border text-xs sm:text-sm md:text-base">Ticket ID</th>
-                            <th class="py-2 px-4 border text-xs sm:text-sm md:text-base">Service</th>
-                            <th class="py-2 px-4 border text-xs sm:text-sm md:text-base">Status</th>
-                            <th class="py-2 px-4 border text-xs sm:text-sm md:text-base">Date</th>
+                            <th class="py-2 px-4 border cursor-pointer" wire:click="sortBy('id')">Ticket ID</th>
+                            <th class="py-2 px-4 border cursor-pointer" wire:click="sortBy('service_id')">Service</th>
+                            <th class="py-2 px-4 border cursor-pointer" wire:click="sortBy('status')">Status</th>
+                            <th class="py-2 px-4 border cursor-pointer flex items-center" wire:click="sortBy('created_at')">
+                                Date
+                                @if ($sortColumn === 'created_at')
+                                    @if ($sortDirection === 'asc')
+                                        <span class="ml-2">&#9650;</span> <!-- Up Arrow for Ascending -->
+                                    @else
+                                        <span class="ml-2">&#9660;</span> <!-- Down Arrow for Descending -->
+                                    @endif
+                                @endif
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($tickets as $ticket)
                             <tr class="{{ $loop->even ? 'bg-gray-100' : 'bg-white' }}">
-                                <td class="py-2 px-4 border text-xs sm:text-sm md:text-base">{{ $ticket->id }}</td>
-                                <td class="py-2 px-4 border text-xs sm:text-sm md:text-base">{{ $ticket->service->name ?? 'N/A' }}</td>
-                                <td class="py-2 px-4 border text-xs sm:text-sm md:text-base">{{ ucfirst($ticket->status) }}</td>
-                                <td class="py-2 px-4 border text-xs sm:text-sm md:text-base">{{ $ticket->created_at->format('Y-m-d') }}</td>
+                                <td class="py-2 px-4 border">{{ $ticket->id }}</td>
+                                <td class="py-2 px-4 border">{{ $ticket->service->name ?? 'N/A' }}</td>
+                                <td class="py-2 px-4 border">{{ ucfirst($ticket->status) }}</td>
+                                <td class="py-2 px-4 border">{{ $ticket->created_at->format('Y-m-d') }}</td>
                             </tr>
                         @endforeach
                     </tbody>
