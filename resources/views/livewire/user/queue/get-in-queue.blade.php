@@ -38,6 +38,14 @@
             <div class="mt-4">
                 <p class="font-bold text-blue-900 text-3xl">Queue Number: <span class="text-blue-600">{{ $queueNumber }}</span></p>
             </div>
+
+            <!-- Display assigned window if verified -->
+            @if ($assignedWindow)
+                <div class="mt-6 bg-green-100 p-4 rounded-lg shadow-md">
+                    <p class="font-bold text-green-800">Assigned Window</p>
+                    <p class="text-gray-700">Please proceed to: <span class="font-semibold">{{ $assignedWindow }}</span></p>
+                </div>
+            @endif
         @else
             <p class="text-blue-700">Please join the queue to see your status here.</p>
         @endif

@@ -29,15 +29,15 @@ class QueueHistory extends Component
                 break;
             case 'today':
                 $this->startDate = Carbon::today();
-                $this->endDate = Carbon::tomorrow()->subSecond(); // End of today
+                $this->endDate = Carbon::tomorrow()->subSecond();
                 break;
             case 'yesterday':
                 $this->startDate = Carbon::yesterday();
-                $this->endDate = Carbon::today()->subSecond(); // End of yesterday
+                $this->endDate = Carbon::today()->subSecond();
                 break;
             case '7days':
                 $this->startDate = Carbon::today()->subDays(6);
-                $this->endDate = Carbon::tomorrow()->subSecond(); // End of today
+                $this->endDate = Carbon::tomorrow()->subSecond();
                 break;
             default:
                 $this->startDate = null;
@@ -54,6 +54,24 @@ class QueueHistory extends Component
             $this->sortDirection = 'asc';
         }
         $this->sortColumn = $column;
+    }
+
+    public function deleteTicket($ticketId)
+    {
+        $ticket = Ticket::where('id', $ticketId)->where('user_id', Auth::id())->first();
+
+        if ($ticket) {
+            $ticket->delete();
+            session()->flash('message', 'Ticket deleted successfully.');
+        } else {
+            session()->flash('error', 'Failed to delete the ticket.');
+        }
+    }
+
+    // Add the loadQueueStatus method to handle polling
+    public function loadQueueStatus()
+    {
+        // Optional: Any code to refresh data
     }
 
     public function render()

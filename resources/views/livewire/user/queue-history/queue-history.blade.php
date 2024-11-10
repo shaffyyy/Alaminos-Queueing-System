@@ -16,8 +16,8 @@
         </select>
     </div>
 
-    <!-- Queue History Table -->
-    <div class="bg-white rounded-lg shadow-md p-4 sm:p-6">
+    <!-- Queue History Table with Polling -->
+    <div wire:poll.2s="loadQueueStatus" class="bg-white rounded-lg shadow-md p-4 sm:p-6">
         @if($tickets->isEmpty())
             <div class="text-center text-gray-500 py-8">
                 <p>No queue history available.</p>
@@ -27,7 +27,7 @@
                 <table class="min-w-full bg-white border">
                     <thead>
                         <tr>
-                            <th class="py-2 px-4 border cursor-pointer" wire:click="sortBy('id')">Ticket ID</th>
+                            <th class="py-2 px-4 border cursor-pointer" wire:click="sortBy('queue_number')">Queue Number</th>
                             <th class="py-2 px-4 border cursor-pointer" wire:click="sortBy('service_id')">Service</th>
                             <th class="py-2 px-4 border cursor-pointer" wire:click="sortBy('status')">Status</th>
                             <th class="py-2 px-4 border cursor-pointer flex items-center" wire:click="sortBy('created_at')">
@@ -40,15 +40,23 @@
                                     @endif
                                 @endif
                             </th>
+                            <th class="py-2 px-4 border">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($tickets as $ticket)
                             <tr class="{{ $loop->even ? 'bg-gray-100' : 'bg-white' }}">
-                                <td class="py-2 px-4 border">{{ $ticket->id }}</td>
+                                <td class="py-2 px-4 border">{{ $ticket->queue_number ?? 'N/A' }}</td>
                                 <td class="py-2 px-4 border">{{ $ticket->service->name ?? 'N/A' }}</td>
                                 <td class="py-2 px-4 border">{{ ucfirst($ticket->status) }}</td>
                                 <td class="py-2 px-4 border">{{ $ticket->created_at->format('Y-m-d') }}</td>
+                                <td class="py-2 px-4 border text-center">
+                                    <button wire:click="deleteTicket({{ $ticket->id }})"
+                                            onclick="return confirmDelete()"
+                                            class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition duration-200">
+                                        Delete
+                                    </button>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -61,4 +69,44 @@
     <div class="mt-4">
         {{ $tickets->links() }}
     </div>
+
+    <!-- SweetAlert Confirmation and Notification Script -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmDelete() {
+            return Swal.fire({
+                title: 'Are you sure?',
+                text: 'This action cannot be undone.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                return result.isConfirmed;
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            @if (session()->has('message'))
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: '{{ session('message') }}',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    toast: true
+                });
+            @elseif (session()->has('error'))
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: '{{ session('error') }}',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    toast: true
+                });
+            @endif
+        });
+    </script>
 </div>

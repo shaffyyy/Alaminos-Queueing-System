@@ -6,7 +6,7 @@
                 <div class="w-64 border-r-2 bg-white shadow-md h-screen">
                     <!-- Sidebar Header -->
                     <div class="p-4 bg-gray-800 text-white">
-                        <h5 class="text-lg font-semibold">QMI (Admin)</h5>
+                        <h5 class="text-lg font-semibold">QMI (Cashier)</h5>
                     </div>
 
                     <!-- Sidebar Navigation Links -->

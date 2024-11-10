@@ -14,8 +14,10 @@ class Ticket extends Model
         'service_id',
         'window_id',
         'status',
-        'verify', // Add verify to fillable attributes
+        'verify',
+        'queue_number' // Add queue_number here
     ];
+
     
 
     // A ticket belongs to a user

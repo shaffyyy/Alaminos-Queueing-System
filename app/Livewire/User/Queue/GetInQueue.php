@@ -13,6 +13,7 @@ class GetInQueue extends Component
     public $service;
     public $queueNumber;
     public $pendingVerificationMessage = false;
+    public $assignedWindow;
 
     public function mount()
     {
@@ -22,13 +23,18 @@ class GetInQueue extends Component
     public function loadQueueStatus()
     {
         $ticket = Ticket::where('user_id', Auth::id())
-                        ->whereIn('status', ['waiting', 'in-service'])
+                        ->whereIn('status', ['waiting', 'in-service', 'completed'])
                         ->latest()
                         ->first();
 
         if ($ticket) {
             $this->queueNumber = $ticket->queue_number;
-            $this->pendingVerificationMessage = ($ticket->status === 'waiting');
+            $this->pendingVerificationMessage = ($ticket->status === 'waiting' && $ticket->verify === 'unverified');
+            
+            // If the ticket is verified, get the assigned window
+            if ($ticket->verify === 'verified' && $ticket->window) {
+                $this->assignedWindow = $ticket->window->name ?? 'N/A';
+            }
         }
     }
 
@@ -80,9 +86,6 @@ class GetInQueue extends Component
             session()->flash('error', 'No available windows at the moment.');
         }
     }
-
-
-
 
     public function render()
     {
