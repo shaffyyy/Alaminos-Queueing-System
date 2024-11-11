@@ -11,6 +11,7 @@
         <div class="">
             <div class="">
                 @livewire('admin.queue.queue') <!-- Correctly referencing the Livewire component -->
+                
             </div>
         </div>
     </div>
