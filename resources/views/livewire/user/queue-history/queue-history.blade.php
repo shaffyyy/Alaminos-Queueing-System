@@ -19,7 +19,52 @@
     <!-- Today's Queue Section -->
     @if ($selectedDateFilter === 'today')
         <div class="mb-8">
-            <h2 class="text-2xl font-semibold text-blue-800 mb-4">Today's Queues</h2>
+            <div class="flex items-center justify-between">
+                <h2 class="text-2xl font-semibold text-blue-800 mb-4">Today's Queues</h2>
+                <!-- Sort Filters beside header -->
+                <div class="text-gray-800 font-semibold flex gap-6">
+                    {{-- <span class="cursor-pointer" wire:click="sortBy('queue_number')">
+                        Queue Number
+                        @if ($sortColumn === 'queue_number')
+                            @if ($sortDirection === 'asc')
+                                &#9650; <!-- Up Arrow -->
+                            @else
+                                &#9660; <!-- Down Arrow -->
+                            @endif
+                        @endif
+                    </span>
+                    <span class="cursor-pointer" wire:click="sortBy('service_id')">
+                        Service
+                        @if ($sortColumn === 'service_id')
+                            @if ($sortDirection === 'asc')
+                                &#9650;
+                            @else
+                                &#9660;
+                            @endif
+                        @endif
+                    </span>
+                    <span class="cursor-pointer" wire:click="sortBy('status')">
+                        Status
+                        @if ($sortColumn === 'status')
+                            @if ($sortDirection === 'asc')
+                                &#9650;
+                            @else
+                                &#9660;
+                            @endif
+                        @endif
+                    </span> --}}
+                    <span class="cursor-pointer" wire:click="sortBy('created_at')">
+                        Date
+                        @if ($sortColumn === 'created_at')
+                            @if ($sortDirection === 'asc')
+                                &#9650;
+                            @else
+                                &#9660;
+                            @endif
+                        @endif
+                    </span>
+                </div>
+            </div>
             <div class="space-y-4">
                 @foreach($tickets->where('created_at', '>=', now()->startOfDay()) as $ticket)
                     <div class="border border-gray-200 rounded-lg p-4 bg-white shadow-md hover:shadow-lg transition transform hover:scale-105">
@@ -56,21 +101,66 @@
 
     <!-- Queue History Section with Dynamic Header based on filter -->
     <div wire:poll.2s="loadQueueStatus" class="space-y-4">
-        <h2 class="text-2xl font-semibold text-blue-800 mb-4">
-            @switch($selectedDateFilter)
-                @case('yesterday')
-                    Yesterday's Queues
-                    @break
-                @case('7days')
-                    Queues from the Past 7 Days
-                    @break
-                @case('all')
-                    All Queue History
-                    @break
-                @default
-                    Queue History
-            @endswitch
-        </h2>
+        <div class="flex items-center justify-between">
+            <h2 class="text-2xl font-semibold text-blue-800 mb-4">
+                @switch($selectedDateFilter)
+                    @case('yesterday')
+                        Yesterday's Queues
+                        @break
+                    @case('7days')
+                        Queues from the Past 7 Days
+                        @break
+                    @case('all')
+                        All Queue History
+                        @break
+                    @default
+                        Queue History
+                @endswitch
+            </h2>
+            <!-- Sort Filters beside header -->
+            <div class="text-gray-800 font-semibold flex gap-6">
+                {{-- <span class="cursor-pointer" wire:click="sortBy('queue_number')">
+                    Queue Number
+                    @if ($sortColumn === 'queue_number')
+                        @if ($sortDirection === 'asc')
+                            &#9650; <!-- Up Arrow -->
+                        @else
+                            &#9660; <!-- Down Arrow -->
+                        @endif
+                    @endif
+                </span>
+                <span class="cursor-pointer" wire:click="sortBy('service_id')">
+                    Service
+                    @if ($sortColumn === 'service_id')
+                        @if ($sortDirection === 'asc')
+                            &#9650;
+                        @else
+                            &#9660;
+                        @endif
+                    @endif
+                </span>
+                <span class="cursor-pointer" wire:click="sortBy('status')">
+                    Status
+                    @if ($sortColumn === 'status')
+                        @if ($sortDirection === 'asc')
+                            &#9650;
+                        @else
+                            &#9660;
+                        @endif
+                    @endif
+                </span> --}}
+                <span class="cursor-pointer" wire:click="sortBy('created_at')">
+                    Date
+                    @if ($sortColumn === 'created_at')
+                        @if ($sortDirection === 'asc')
+                            &#9650;
+                        @else
+                            &#9660;
+                        @endif
+                    @endif
+                </span>
+            </div>
+        </div>
         
         @if($tickets->isEmpty())
             <div class="text-center text-gray-500 py-8">
@@ -78,37 +168,38 @@
             </div>
         @else
             @foreach($tickets->where('created_at', '<', now()->startOfDay()) as $ticket)
-                <div class="border border-gray-200 rounded-lg p-4 bg-white shadow-md hover:shadow-lg transition transform hover:scale-105">
-                    <div class="flex items-center justify-between">
-                        <!-- Ticket Information -->
-                        <div>
-                            <h2 class="text-lg font-bold text-blue-600">Queue Number: {{ $ticket->queue_number ?? 'N/A' }}</h2>
-                            <p class="text-sm text-gray-600"><strong>Service:</strong> {{ $ticket->service->name ?? 'N/A' }}</p>
-                            <p class="text-sm">
-                                <strong>Status:</strong> 
-                                <span class="
-                                    @if($ticket->status === 'waiting') text-yellow-500 
-                                    @elseif($ticket->status === 'in-service') text-blue-500 
-                                    @elseif($ticket->status === 'completed') text-green-500 
-                                    @elseif($ticket->status === 'cancelled') text-red-500 
-                                    @endif font-semibold
-                                ">
-                                    {{ ucfirst($ticket->status) }}
-                                </span>
-                            </p>
-                            <p class="text-sm text-gray-600">
-                                <strong>Date:</strong> {{ $ticket->created_at->format('Y-m-d') }}
-                            </p>
-                        </div>
-                        <div>
-                            <button wire:click="deleteTicket({{ $ticket->id }})"
-                                    onclick="return confirmDelete()"
-                                    class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition duration-200">
-                                Delete
-                            </button>
-                        </div>
+            <div class="border border-gray-300 rounded-lg p-4 bg-gray-200 shadow-md hover:shadow-lg transition transform hover:scale-105">
+                <div class="flex items-center justify-between">
+                    <!-- Ticket Information -->
+                    <div>
+                        <h2 class="text-lg font-bold text-blue-600">Queue Number: {{ $ticket->queue_number ?? 'N/A' }}</h2>
+                        <p class="text-sm text-gray-700"><strong>Service:</strong> {{ $ticket->service->name ?? 'N/A' }}</p>
+                        <p class="text-sm">
+                            <strong>Status:</strong> 
+                            <span class="
+                                @if($ticket->status === 'waiting') text-yellow-600 
+                                @elseif($ticket->status === 'in-service') text-blue-600 
+                                @elseif($ticket->status === 'completed') text-green-600 
+                                @elseif($ticket->status === 'cancelled') text-red-600 
+                                @endif font-semibold
+                            ">
+                                {{ ucfirst($ticket->status) }}
+                            </span>
+                        </p>
+                        <p class="text-sm text-gray-700">
+                            <strong>Date:</strong> {{ $ticket->created_at->format('Y-m-d') }}
+                        </p>
+                    </div>
+                    <div>
+                        <button wire:click="deleteTicket({{ $ticket->id }})"
+                                onclick="return confirmDelete()"
+                                class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition duration-200">
+                            Delete
+                        </button>
                     </div>
                 </div>
+            </div>
+            
             @endforeach
         @endif
     </div>
