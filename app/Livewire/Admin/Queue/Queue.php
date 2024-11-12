@@ -23,11 +23,11 @@ class Queue extends Component
             ->when($this->verificationStatus !== 'all', function ($query) {
                 $query->where('verify', $this->verificationStatus);
             })
-            ->where('status', '!=', 'completed')
+            ->whereNotIn('status', ['completed', 'cancelled']) // Exclude completed and cancelled
             ->orderBy('created_at', 'asc')
             ->get();
     }
-
+    
     public function verifyTicket($ticketId)
     {
         $ticket = Ticket::find($ticketId);

@@ -55,6 +55,7 @@
                                     <th class="px-4 py-2 text-left font-medium text-gray-500">Window</th>
                                     <th class="px-4 py-2 text-left font-medium text-gray-500">Status</th>
                                     <th class="px-4 py-2 text-left font-medium text-gray-500">Service</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-500">Verified Queues</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -63,12 +64,17 @@
                                         <td class="px-4 py-2">{{ $window->name }}</td>
                                         <td class="px-4 py-2 {{ $window->status === 'online' ? 'text-green-500' : 'text-red-500' }}">{{ ucfirst($window->status) }}</td>
                                         <td class="px-4 py-2">{{ $window->service->name ?? 'No Service Assigned' }}</td>
+                                        <td class="px-4 py-2 text-center">
+                                            <!-- Count verified tickets for this window -->
+                                            {{ $window->tickets()->where('verify', 'verified')->count() }}
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
                 </div>
+                
                 <!-- End Table of Windows -->
             </div>
             <!-- End Main Content -->

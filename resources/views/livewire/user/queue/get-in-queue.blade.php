@@ -39,18 +39,24 @@
                 <p class="font-bold text-blue-900 text-3xl">Queue Number: <span class="text-blue-600">{{ $queueNumber }}</span></p>
             </div>
 
-            <!-- Display assigned window if verified -->
             @if ($assignedWindow)
                 <div class="mt-6 bg-green-100 p-4 rounded-lg shadow-md">
                     <p class="font-bold text-green-800">Assigned Window</p>
                     <p class="text-gray-700">Please proceed to: <span class="font-semibold">{{ $assignedWindow }}</span></p>
                 </div>
             @endif
+
+            <!-- Cancel Queue Button -->
+            <button wire:click="cancelTicket({{ $currentTicketId }})"
+                    onclick="return confirm('Are you sure you want to cancel this ticket?')"
+                    class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition duration-200">
+                Cancel
+            </button>
+            
         @else
             <p class="text-blue-700">Please join the queue to see your status here.</p>
         @endif
     </div>
-    
 
     @if ($pendingVerificationMessage)
         <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mt-6 rounded-lg">
@@ -58,4 +64,11 @@
             <p>Your ticket is pending verification. Please proceed to the front desk to verify your ticket.</p>
         </div>
     @endif
+
+    <!-- Confirmation for Cancel Queue -->
+    <script>
+        function confirmCancel() {
+            return confirm('Are you sure you want to cancel the queue? This action cannot be undone.');
+        }
+    </script>
 </div>
