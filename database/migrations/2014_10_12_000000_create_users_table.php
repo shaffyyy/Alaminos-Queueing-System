@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('usertype')->default(0); #user = 0,  admin = 1, cashier  = 2, fdcashier = 3
+            $table->string('usertype')->default(0); #user = 0,  admin = 1, cashier  = 2, fdcashier = 3 , pwd = 4, super admin -5
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

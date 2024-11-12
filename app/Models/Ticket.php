@@ -15,8 +15,14 @@ class Ticket extends Model
         'window_id',
         'status',
         'verify',
-        'queue_number' // Add queue_number here
+        'queue_number',
+        'verified_at' // Add verified_at here
     ];
+
+    protected $dates = [
+        'verified_at', // Ensure it's cast to a date object
+    ];
+
 
     
 
