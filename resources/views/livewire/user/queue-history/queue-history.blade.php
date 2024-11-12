@@ -67,7 +67,7 @@
             </div>
             <div class="space-y-4">
                 @foreach($tickets->where('created_at', '>=', now()->startOfDay()) as $ticket)
-                    <div class="border border-gray-200 rounded-lg p-4 bg-white shadow-md hover:shadow-lg transition transform hover:scale-105">
+                    <div class="border border-gray-200 rounded-lg p-4 bg-gray-200 shadow-md hover:shadow-lg transition transform hover:scale-105">
                         <div class="flex items-center justify-between">
                             <div>
                                 <h2 class="text-lg font-bold text-blue-600">Queue Number: {{ $ticket->queue_number ?? 'N/A' }}</h2>
@@ -118,48 +118,7 @@
                 @endswitch
             </h2>
             <!-- Sort Filters beside header -->
-            <div class="text-gray-800 font-semibold flex gap-6">
-                {{-- <span class="cursor-pointer" wire:click="sortBy('queue_number')">
-                    Queue Number
-                    @if ($sortColumn === 'queue_number')
-                        @if ($sortDirection === 'asc')
-                            &#9650; <!-- Up Arrow -->
-                        @else
-                            &#9660; <!-- Down Arrow -->
-                        @endif
-                    @endif
-                </span>
-                <span class="cursor-pointer" wire:click="sortBy('service_id')">
-                    Service
-                    @if ($sortColumn === 'service_id')
-                        @if ($sortDirection === 'asc')
-                            &#9650;
-                        @else
-                            &#9660;
-                        @endif
-                    @endif
-                </span>
-                <span class="cursor-pointer" wire:click="sortBy('status')">
-                    Status
-                    @if ($sortColumn === 'status')
-                        @if ($sortDirection === 'asc')
-                            &#9650;
-                        @else
-                            &#9660;
-                        @endif
-                    @endif
-                </span> --}}
-                <span class="cursor-pointer" wire:click="sortBy('created_at')">
-                    Date
-                    @if ($sortColumn === 'created_at')
-                        @if ($sortDirection === 'asc')
-                            &#9650;
-                        @else
-                            &#9660;
-                        @endif
-                    @endif
-                </span>
-            </div>
+            
         </div>
         
         @if($tickets->isEmpty())
@@ -186,9 +145,9 @@
                                 {{ ucfirst($ticket->status) }}
                             </span>
                         </p>
-                        <p class="text-sm text-gray-700">
+                        {{-- <p class="text-sm text-gray-700">
                             <strong>Date:</strong> {{ $ticket->created_at->format('Y-m-d') }}
-                        </p>
+                        </p> --}}
                     </div>
                     <div>
                         <button wire:click="deleteTicket({{ $ticket->id }})"

@@ -50,33 +50,36 @@ class GetInQueue extends Component
             'service' => 'required|exists:services,id',
         ]);
 
+        // Find the window with the fewest queues for the selected service
         $availableWindow = Window::where('status', 'active')
             ->whereHas('service', function ($query) {
                 $query->where('id', $this->service);
             })
+            ->withCount(['tickets' => function ($query) {
+                $query->whereIn('status', ['waiting', 'in-service']);
+            }])
+            ->orderBy('tickets_count') // Select the window with the fewest queues
             ->first();
 
         if ($availableWindow) {
             $serviceName = Service::find($this->service)->name;
-            $queuePrefix = match ($serviceName) {
-                'Cedula' => 'C',
-                'Business tax' => 'BT',
-                'Real Property Tax' => 'RPT',
-                'Clearance' => 'CL',
-                'Other Fee or Charges' => 'OF',
-                default => 'Q'
-            };
+            $initials = strtoupper(substr($serviceName, 0, 2));
 
-            $ticketCount = Ticket::where('service_id', $this->service)->count() + 1;
-            $queueNumber = $queuePrefix . str_pad($ticketCount, 3, '0', STR_PAD_LEFT);
-
+            // Create a ticket without a queue number to retrieve the ticket ID
             $ticket = Ticket::create([
                 'user_id' => Auth::id(),
                 'service_id' => $this->service,
                 'window_id' => $availableWindow->id,
                 'status' => 'waiting',
-                'queue_number' => $queueNumber,
+                'queue_number' => null,
             ]);
+
+            // Generate queue number using initials and ticket ID
+            $queueNumber = $initials . str_pad($ticket->id, 3, '0', STR_PAD_LEFT);
+
+            // Update the ticket with the generated queue number
+            $ticket->queue_number = $queueNumber;
+            $ticket->save();
 
             $this->queueNumber = $ticket->queue_number;
             $this->pendingVerificationMessage = true;
@@ -89,6 +92,9 @@ class GetInQueue extends Component
             session()->flash('error', 'No available windows for the selected service at the moment.');
         }
     }
+
+
+    
 
     public function cancelTicket($ticketId)
     {

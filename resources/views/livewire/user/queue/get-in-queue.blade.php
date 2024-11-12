@@ -58,7 +58,8 @@
         @endif
     </div>
 
-    @if ($pendingVerificationMessage)
+    <!-- Only show the pending verification message if the ticket is not canceled -->
+    @if ($pendingVerificationMessage && $queueNumber && $currentTicketId)
         <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mt-6 rounded-lg">
             <p class="font-bold">Proceed to the Front Desk</p>
             <p>Your ticket is pending verification. Please proceed to the front desk to verify your ticket.</p>

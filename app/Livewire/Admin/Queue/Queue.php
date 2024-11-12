@@ -9,12 +9,15 @@ class Queue extends Component
 {
     public $queues;
     public $verificationStatus = 'all';
+    public $newUnverifiedCount = 0;
+    public $search = ''; // New property for search term
 
     protected $listeners = ['refreshData' => '$refresh'];
 
     public function mount()
     {
         $this->loadQueues();
+        $this->countNewUnverified();
     }
 
     public function loadQueues()
@@ -23,11 +26,34 @@ class Queue extends Component
             ->when($this->verificationStatus !== 'all', function ($query) {
                 $query->where('verify', $this->verificationStatus);
             })
-            ->whereNotIn('status', ['completed', 'cancelled']) // Exclude completed and cancelled
+            ->whereNotIn('status', ['completed', 'cancelled'])
+            ->when($this->search, function ($query) { // Filter by search term
+                $query->where('queue_number', 'like', '%' . $this->search . '%');
+            })
             ->orderBy('created_at', 'asc')
             ->get();
     }
-    
+
+    public function countNewUnverified()
+    {
+        $this->newUnverifiedCount = Ticket::where('verify', 'unverified')
+            ->whereNotIn('status', ['completed', 'cancelled'])
+            ->count();
+    }
+
+    public function showVerified()
+    {
+        $this->verificationStatus = 'verified';
+        $this->loadQueues();
+    }
+
+    public function showUnverified()
+    {
+        $this->verificationStatus = 'unverified';
+        $this->newUnverifiedCount = 0; // Reset count when viewed
+        $this->loadQueues();
+    }
+
     public function verifyTicket($ticketId)
     {
         $ticket = Ticket::find($ticketId);
@@ -35,6 +61,7 @@ class Queue extends Component
             $ticket->verify = 'verified';
             $ticket->save();
             $this->loadQueues();
+            $this->countNewUnverified();
             session()->flash('verification_message', 'Ticket has been verified successfully!');
         }
     }
@@ -46,12 +73,14 @@ class Queue extends Component
             $ticket->verify = 'unverified';
             $ticket->save();
             $this->loadQueues();
+            $this->countNewUnverified();
             session()->flash('verification_message', 'Ticket verification has been undone.');
         }
     }
 
     public function render()
     {
+        $this->countNewUnverified(); // Keep updating count in real-time
         return view('livewire.admin.queue.queue');
     }
 }

@@ -127,5 +127,6 @@
         @livewireScripts
         <script src="//unpkg.com/alpinejs" defer></script>
         <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+        
     </body>
 </html>

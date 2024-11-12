@@ -2,14 +2,25 @@
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
 
-            <!-- Filter Form -->
-            <div class="mb-4 flex justify-end">
-                <label for="verify" class="mr-2 font-medium">Filter:</label>
-                <select wire:model="verificationStatus" id="verify" class="border-gray-300 rounded-md shadow-sm">
-                    <option value="all">All</option>
-                    <option value="verified">Verified</option>
-                    <option value="unverified">Unverified</option>
-                </select>
+            <!-- Search and Filter Buttons -->
+            <div class="flex gap-4 mb-4">
+                <input type="text" wire:model.debounce.500ms="search" placeholder="Search by Queue Number"
+                    class="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 w-1/3" />
+
+                <button wire:click="showVerified" class="px-4 py-2 rounded-lg font-semibold 
+                    {{ $verificationStatus === 'verified' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700' }}">
+                    Verified
+                </button>
+
+                <button wire:click="showUnverified" class="relative px-4 py-2 rounded-lg font-semibold 
+                    {{ $verificationStatus === 'unverified' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700' }}">
+                    Unverified
+                    @if($newUnverifiedCount > 0)
+                        <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                            {{ $newUnverifiedCount }}
+                        </span>
+                    @endif
+                </button>
             </div>
 
             <!-- Display Queue -->
@@ -22,7 +33,7 @@
                     <table class="min-w-full bg-white border divide-y divide-gray-200">
                         <thead>
                             <tr>
-                                <th class="py-2 px-4 border">Ticket ID</th>
+                                <th class="py-2 px-4 border">Queue Number</th>
                                 <th class="py-2 px-4 border">User</th>
                                 <th class="py-2 px-4 border">Service</th>
                                 <th class="py-2 px-4 border">Window</th>
@@ -34,7 +45,7 @@
                         <tbody>
                             @foreach($queues as $queue)
                                 <tr class="{{ $loop->even ? 'bg-gray-100' : 'bg-white' }}">
-                                    <td class="py-2 px-4 border">{{ $queue->id }}</td>
+                                    <td class="py-2 px-4 border">{{ $queue->queue_number ?? 'N/A' }}</td>
                                     <td class="py-2 px-4 border">{{ $queue->user->name ?? 'N/A' }}</td>
                                     <td class="py-2 px-4 border">{{ $queue->service->name ?? 'N/A' }}</td>
                                     <td class="py-2 px-4 border">{{ $queue->window->name ?? 'N/A' }}</td>
