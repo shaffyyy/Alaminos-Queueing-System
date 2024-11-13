@@ -3,41 +3,34 @@
 namespace App\Livewire\Admin\Monitor;
 
 use Livewire\Component;
-use App\Models\Ticket;
+use App\Models\Window;
 
 class Monitor extends Component
 {
-    public $tickets;
-    public $showUnverified = false;
+    public $windows = [];
 
     public function mount()
     {
-        $this->loadTickets();
+        $this->loadWindows();
     }
 
-    public function loadTickets()
+    public function loadWindows()
     {
-        $this->tickets = Ticket::where('status', '!=', 'completed')
-            ->where('verify', $this->showUnverified ? 'unverified' : 'verified')
-            ->orderBy('created_at', 'asc')
-            ->get();
-    }
-
-    public function toggleUnverified()
-    {
-        $this->showUnverified = !$this->showUnverified;
-        $this->loadTickets();
+        $this->windows = Window::with(['tickets' => function ($query) {
+            $query->where('status', '!=', 'completed')
+                ->orderBy('created_at', 'asc');
+        }])->get()->map(function ($window) {
+            return [
+                'name' => $window->name,
+                'service' => $window->service->name ?? null,
+                'now_serving' => optional($window->tickets->first())->queue_number,
+                'waiting' => $window->tickets->slice(1, 3)->pluck('queue_number')->toArray(),
+            ];
+        })->toArray();
     }
 
     public function render()
     {
-        return view('livewire.admin.monitor.monitor', [
-            'tickets' => $this->tickets,
-        ]);
-    }
-
-    public function refreshTickets()
-    {
-        $this->loadTickets();
+        return view('livewire.admin.monitor.monitor');
     }
 }
