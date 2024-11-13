@@ -1,110 +1,54 @@
 <div class="py-12" wire:poll.2s="loadQueues">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-            <!-- Filter Form -->
-            <div class="mb-4 flex justify-end">
-                <label for="verify" class="mr-2 font-medium">Filter:</label>
-                <select wire:model="verificationStatus" id="verify" class="border-gray-300 rounded-md shadow-sm">
-                    <option value="all">All</option>
-                    <option value="verified">Verified</option>
-                    <option value="unverified">Unverified</option>
-                </select>
-            </div>
+        <div class="bg-gray-200 overflow-hidden shadow-xl sm:rounded-lg p-6">
+            @if($assignedWindow)
+                <h2 class="text-2xl font-bold mb-4 text-gray-700">Window: {{ $assignedWindow->name }}</h2>
 
-            <!-- Display Queue -->
-            @if($queues->isEmpty())
-                <div class="text-center text-gray-500 py-8">
-                    <p>No queues available.</p>
-                </div>
-            @else
-                <div class="overflow-x-auto">
-                    <table class="min-w-full bg-white border divide-y divide-gray-200">
-                        <thead>
-                            <tr>
-                                <th class="py-2 px-4 border">Ticket ID</th>
-                                <th class="py-2 px-4 border">User</th>
-                                <th class="py-2 px-4 border">Service</th>
-                                <th class="py-2 px-4 border">Window</th>
-                                <th class="py-2 px-4 border">Status</th>
-                                <th class="py-2 px-4 border">Verification</th>
-                                <th class="py-2 px-4 border">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($queues as $queue)
-                                <tr class="{{ $loop->even ? 'bg-gray-100' : 'bg-white' }}">
-                                    <td class="py-2 px-4 border">{{ $queue->id }}</td>
-                                    <td class="py-2 px-4 border">{{ $queue->user->name ?? 'N/A' }}</td>
-                                    <td class="py-2 px-4 border">{{ $queue->service->name ?? 'N/A' }}</td>
-                                    <td class="py-2 px-4 border">{{ $queue->window->name ?? 'N/A' }}</td>
-                                    <td class="py-2 px-4 border">{{ ucfirst($queue->status) }}</td>
-                                    <td class="py-2 px-4 border">{{ ucfirst($queue->verify) }}</td>
-                                    <td class="py-2 px-4 border">
-                                        @if($queue->verify === 'verified')
-                                            <form wire:submit.prevent="undoVerifyTicket({{ $queue->id }})" onsubmit="return confirmUndo()">
-                                                <button type="submit" class="bg-yellow-500 text-white py-1 px-3 rounded-lg hover:bg-yellow-600 transition duration-200">
-                                                    Undo
-                                                </button>
-                                            </form>
-                                        @else
-                                            <form wire:submit.prevent="verifyTicket({{ $queue->id }})" onsubmit="return confirmVerification()">
-                                                <button type="submit" class="bg-green-500 text-white py-1 px-3 rounded-lg hover:bg-green-600 transition duration-200">
-                                                    Verify
-                                                </button>
-                                            </form>
-                                        @endif
-                                    </td>
+                @if($queues->isEmpty())
+                    <div class="text-center text-gray-500 py-8">
+                        <p>No verified queues available for this window.</p>
+                    </div>
+                @else
+                    <div class="overflow-x-auto bg-gray-50  rounded-lg shadow-lg">
+                        <table class="min-w-full border divide-y divide-gray-200">
+                            <thead class="bg-gray-600 text-white">
+                                <tr>
+                                    <th class="py-3 px-4 border text-left font-medium">Queue Number</th>
+                                    <th class="py-3 px-4 border text-left font-medium">User</th>
+                                    <th class="py-3 px-4 border text-left font-medium">Service</th>
+                                    <th class="py-3 px-4 border text-left font-medium">Status</th>
+                                    <th class="py-3 px-4 border text-left font-medium">Actions</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach($queues as $queue)
+                                    <tr class="{{ $loop->even ? 'bg-gray-100' : 'bg-gray-200' }} hover:bg-gray-300 transition duration-200">
+                                        <td class="py-3 px-4 border font-semibold text-gray-700">{{ $queue->queue_number }}</td>
+                                        <td class="py-3 px-4 border text-gray-600">{{ $queue->user->name ?? 'N/A' }}</td>
+                                        <td class="py-3 px-4 border text-gray-600">{{ $queue->service->name ?? 'N/A' }}</td>
+                                        <td class="py-3 px-4 border text-gray-600">{{ ucfirst($queue->status) }}</td>
+                                        <td class="py-3 px-4 border">
+                                            @if($queue->status === 'waiting')
+                                                <button wire:click="startService({{ $queue->id }})" class="bg-blue-500 text-white py-1 px-3 rounded-lg hover:bg-blue-600 transition duration-200">
+                                                    Start Service
+                                                </button>
+                                            @elseif($queue->status === 'in-service')
+                                                <button wire:click="completeService({{ $queue->id }})" class="bg-green-500 text-white py-1 px-3 rounded-lg hover:bg-green-600 transition duration-200">
+                                                    Complete Service
+                                                </button>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            @else
+                <div class="text-center text-gray-500 py-8">
+                    <p>No window assigned to this account.</p>
                 </div>
             @endif
-
-            <!-- SweetAlert2 Script -->
-            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-            <script>
-                function confirmVerification() {
-                    return Swal.fire({
-                        title: 'Are you sure?',
-                        text: 'Do you want to verify this ticket?',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Yes, verify it!'
-                    }).then((result) => {
-                        return result.isConfirmed;
-                    });
-                }
-
-                function confirmUndo() {
-                    return Swal.fire({
-                        title: 'Are you sure?',
-                        text: 'Do you want to undo verification for this ticket?',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Yes, undo it!'
-                    }).then((result) => {
-                        return result.isConfirmed;
-                    });
-                }
-
-                document.addEventListener('livewire:load', function () {
-                    @if(session()->has('verification_message'))
-                        Swal.fire({
-                            position: 'top-end',
-                            icon: 'success',
-                            title: '{{ session('verification_message') }}',
-                            showConfirmButton: false,
-                            timer: 1500,
-                            toast: true
-                        });
-                    @endif
-                });
-            </script>
         </div>
     </div>
 </div>

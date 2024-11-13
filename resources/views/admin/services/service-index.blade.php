@@ -9,7 +9,7 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
+            <div class="bg-gray-200 overflow-hidden shadow-xl sm:rounded-lg p-6">
                 <div>
                     <h1 class="text-2xl font-bold mb-4">Services List</h1>
 
@@ -21,40 +21,74 @@
                     @endif
 
                     <!-- Add New Service Button -->
-                    <a href="{{ route('admin-add-services') }}" class="bg-blue-500 text-white px-4 py-2 rounded-md mb-4 inline-block">Add New Service</a>
+                    <a href="{{ route('admin-add-services') }}" class="bg-blue-500 text-white px-4 py-2 rounded-md mb-4 inline-block hover:bg-blue-600 transition duration-200">Add New Service</a>
 
-                    <table class="min-w-full bg-white border">
-                        <thead>
-                            <tr>
-                                <th class="py-2 px-4 border">Name</th>
-                                <th class="py-2 px-4 border">Description</th>
-                                <th class="py-2 px-4 border">Status</th>
-                                <th class="py-2 px-4 border">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($services as $service)
+                    <!-- Table -->
+                    <div class="overflow-x-auto bg-gray-50 rounded-lg shadow-lg">
+                        <table class="min-w-full border divide-y divide-gray-200">
+                            <thead class="bg-gray-600 text-white">
                                 <tr>
-                                    <td class="py-2 px-4 border">{{ $service->name }}</td>
-                                    <td class="py-2 px-4 border">{{ $service->description }}</td>
-                                    <td class="py-2 px-4 border">
-                                        {{ $service->status ? 'Active' : 'Inactive' }}
-                                    </td>
-                                    <td class="py-2 px-4 border">
-                                        <a href="{{ route('admin-edit-service', $service->id) }}" class="text-blue-500 hover:underline">Edit</a> |
-                                        <button wire:click="deleteService({{ $service->id }})" class="text-red-500">Delete</button>
-                                    </td>
+                                    <th class="py-3 px-4 border text-left font-medium">Name</th>
+                                    <th class="py-3 px-4 border text-left font-medium">Description</th>
+                                    <th class="py-3 px-4 border text-left font-medium">Status</th>
+                                    <th class="py-3 px-4 border text-left font-medium">Actions</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-
-                    <!-- Modals -->
-                    {{-- Uncomment the Livewire modals if necessary --}}
-                    {{-- @livewire('admin.services.service-create') --}}
-                    {{-- @livewire('admin.services.service-edit') --}}
+                            </thead>
+                            <tbody>
+                                @foreach($services as $service)
+                                    <tr class="{{ $loop->even ? 'bg-gray-200' : 'bg-gray-100' }} hover:bg-gray-300 transition duration-200">
+                                        <td class="py-3 px-4 border font-semibold text-gray-700">{{ $service->name }}</td>
+                                        <td class="py-3 px-4 border text-gray-600">{{ $service->description }}</td>
+                                        <td class="py-3 px-4 border text-gray-600">
+                                            <span class="{{ $service->status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }} text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">
+                                                {{ $service->status ? 'Active' : 'Inactive' }}
+                                            </span>
+                                        </td>
+                                        <td class="py-3 px-4 border text-gray-600">
+                                            <a href="{{ route('admin-edit-service', $service->id) }}" class="text-blue-500 hover:underline">Edit</a> |
+                                            <button onclick="deleteConfirmation({{ $service->id }})" class="text-red-500 hover:underline">Delete</button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- SweetAlert Script -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function deleteConfirmation(serviceId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'You won\'t be able to revert this!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Livewire.emit('deleteService', serviceId);
+                }
+            });
+        }
+
+        // Show success alert if session has a success message
+        document.addEventListener('DOMContentLoaded', function () {
+            @if(session('message'))
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: '{{ session('message') }}',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    toast: true
+                });
+            @endif
+        });
+    </script>
 </x-app-layout>

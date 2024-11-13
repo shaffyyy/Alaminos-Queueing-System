@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Queue;
 
 use Livewire\Component;
 use App\Models\Ticket;
+use Carbon\Carbon;
 
 class Queue extends Component
 {
@@ -59,6 +60,7 @@ class Queue extends Component
         $ticket = Ticket::find($ticketId);
         if ($ticket) {
             $ticket->verify = 'verified';
+            $ticket->verified_at = Carbon::now(); // Set verified_at timestamp
             $ticket->save();
             $this->loadQueues();
             $this->countNewUnverified();
@@ -71,6 +73,7 @@ class Queue extends Component
         $ticket = Ticket::find($ticketId);
         if ($ticket) {
             $ticket->verify = 'unverified';
+            $ticket->verified_at = null; // Clear the verified_at timestamp
             $ticket->save();
             $this->loadQueues();
             $this->countNewUnverified();

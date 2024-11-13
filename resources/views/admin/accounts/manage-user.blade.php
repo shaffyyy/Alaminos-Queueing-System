@@ -7,19 +7,20 @@
         </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12 bg-white">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
+            <div class="bg-gray-200 overflow-hidden shadow-xl sm:rounded-lg p-6">
 
                 <!-- Header with Search and Filter Form -->
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl font-semibold">Users</h2>
-                    
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-700">Users</h2>
+
                     <!-- Search and Filter Form -->
                     <form method="GET" action="{{ route('admin-manage-user') }}" class="flex">
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name" class="border-gray-300 rounded-md shadow-sm">
-                        
-                        <select name="usertype" class="ml-2 border-gray-300 rounded-md shadow-sm">
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name"
+                               class="border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:border-blue-500" />
+
+                        <select name="usertype" class="ml-2 border border-gray-300 rounded-lg px-3 py-2 shadow-sm focus:outline-none focus:border-blue-500">
                             <option value="">All Roles</option>
                             <option value="0" {{ request('usertype') == '0' ? 'selected' : '' }}>User</option>
                             <option value="1" {{ request('usertype') == '1' ? 'selected' : '' }}>Admin</option>
@@ -27,7 +28,9 @@
                             <option value="3" {{ request('usertype') == '3' ? 'selected' : '' }}>FD Cashier</option>
                         </select>
 
-                        <button type="submit" class="ml-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200">Filter</button>
+                        <button type="submit" class="ml-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200">
+                            Filter
+                        </button>
                     </form>
                 </div>
 
@@ -38,41 +41,43 @@
                     </div>
                 @else
                     <!-- Users Table -->
-                    <table class="w-full table-auto">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User Type</th>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($users as $user)
+                    <div class="overflow-x-auto bg-gray-50 rounded-lg shadow-lg">
+                        <table class="min-w-full border divide-y divide-gray-200">
+                            <thead class="bg-gray-600 text-white">
                                 <tr>
-                                    <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{{ $user->id }}</td>
-                                    <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{{ $user->name }}</td>
-                                    <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{{ $user->email }}</td>
-                                    <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        @if($user->usertype == 0)
-                                            <span class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">User</span>
-                                        @elseif($user->usertype == 1)
-                                            <span class="bg-red-100 text-red-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">Admin</span>
-                                        @elseif($user->usertype == 2)
-                                            <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">Cashier</span>
-                                        @elseif($user->usertype == 3)
-                                            <span class="bg-green-100 text-green-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">FD Cashier</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        <a href="{{ route('admin-edit-user', $user->id) }}" class="text-blue-500 hover:text-blue-700 mr-2">Edit</a>
-                                        <button onclick="deleteUser({{ $user->id }})" class="text-red-500 hover:text-red-700">Delete</button>
-                                    </td>
+                                    <th class="px-4 py-3 text-left font-medium">ID</th>
+                                    <th class="px-4 py-3 text-left font-medium">Name</th>
+                                    <th class="px-4 py-3 text-left font-medium">Email</th>
+                                    <th class="px-4 py-3 text-left font-medium">User Type</th>
+                                    <th class="px-4 py-3 text-left font-medium">Actions</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach($users as $user)
+                                    <tr class="{{ $loop->even ? 'bg-gray-200' : 'bg-gray-100' }} hover:bg-gray-300 transition duration-200">
+                                        <td class="px-4 py-3 text-gray-700 font-semibold">{{ $user->id }}</td>
+                                        <td class="px-4 py-3 text-gray-700 font-semibold">{{ $user->name }}</td>
+                                        <td class="px-4 py-3 text-gray-600">{{ $user->email }}</td>
+                                        <td class="px-4 py-3">
+                                            @if($user->usertype == 0)
+                                                <span class="bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full text-xs font-semibold">User</span>
+                                            @elseif($user->usertype == 1)
+                                                <span class="bg-red-100 text-red-800 px-2.5 py-0.5 rounded-full text-xs font-semibold">Admin</span>
+                                            @elseif($user->usertype == 2)
+                                                <span class="bg-yellow-100 text-yellow-800 px-2.5 py-0.5 rounded-full text-xs font-semibold">Cashier</span>
+                                            @elseif($user->usertype == 3)
+                                                <span class="bg-green-100 text-green-800 px-2.5 py-0.5 rounded-full text-xs font-semibold">FD Cashier</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-600">
+                                            <a href="{{ route('admin-edit-user', $user->id) }}" class="text-blue-500 hover:text-blue-700 mr-2">Edit</a>
+                                            <button onclick="deleteUser({{ $user->id }})" class="text-red-500 hover:text-red-700">Delete</button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 @endif
 
             </div>
@@ -104,7 +109,6 @@
             });
         }
 
-        // Show SweetAlert for successful updates
         document.addEventListener('DOMContentLoaded', function () {
             @if(session('success'))
                 Swal.fire({

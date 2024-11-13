@@ -4,53 +4,68 @@ namespace App\Livewire\Cashier\Queues;
 
 use Livewire\Component;
 use App\Models\Ticket;
+use App\Models\Window;
+use Illuminate\Support\Facades\Auth;
 
 class Queues extends Component
 {
     public $queues;
-    public $verificationStatus = 'all';
+    public $assignedWindow;
 
     protected $listeners = ['refreshData' => '$refresh'];
 
     public function mount()
     {
+        $this->loadAssignedWindow();
         $this->loadQueues();
+    }
+
+    public function loadAssignedWindow()
+    {
+        // Fetch the window assigned to the logged-in cashier
+        $this->assignedWindow = Window::where('cashier_id', Auth::id())->first();
     }
 
     public function loadQueues()
     {
-        $this->queues = Ticket::with(['user', 'service', 'window'])
-            ->when($this->verificationStatus !== 'all', function ($query) {
-                $query->where('verify', $this->verificationStatus);
-            })
-            ->orderBy('created_at', 'asc')
-            ->get();
-    }
-
-    public function verifyTicket($ticketId)
-    {
-        $ticket = Ticket::find($ticketId);
-        if ($ticket) {
-            $ticket->verify = 'verified';
-            $ticket->save();
-            $this->loadQueues();
-            session()->flash('verification_message', 'Ticket has been verified successfully!');
+        if ($this->assignedWindow) {
+            $this->queues = Ticket::with(['user', 'service', 'window'])
+                ->where('window_id', $this->assignedWindow->id) // Filter by assigned window
+                ->where('verify', 'verified') // Only include verified tickets
+                ->whereNotIn('status', ['completed']) // Exclude completed tickets
+                ->orderBy('created_at', 'asc')
+                ->get();
+        } else {
+            $this->queues = collect(); // Empty collection if no window assigned
         }
     }
 
-    public function undoVerifyTicket($ticketId)
+    public function startService($ticketId)
     {
         $ticket = Ticket::find($ticketId);
-        if ($ticket) {
-            $ticket->verify = 'unverified';
+        if ($ticket && $ticket->status === 'waiting') {
+            $ticket->status = 'in-service';
             $ticket->save();
             $this->loadQueues();
-            session()->flash('verification_message', 'Ticket verification has been undone.');
+            session()->flash('message', 'Service started for ticket.');
+        }
+    }
+
+    public function completeService($ticketId)
+    {
+        $ticket = Ticket::find($ticketId);
+        if ($ticket && $ticket->status === 'in-service') {
+            $ticket->status = 'completed';
+            $ticket->save();
+            $this->loadQueues();
+            session()->flash('message', 'Service completed for ticket.');
         }
     }
 
     public function render()
     {
-        return view('livewire.cashier.queues.queues');
+        return view('livewire.cashier.queues.queues', [
+            'assignedWindow' => $this->assignedWindow,
+        ]);
     }
 }

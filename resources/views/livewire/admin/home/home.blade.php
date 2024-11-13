@@ -1,6 +1,6 @@
 <div wire:poll.10s class="">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+        <div class="bg-white overflow-hidden sm:rounded-lg">
             <!-- Main Content -->
             <div class="main-content container mx-auto px-5 py-3">
                 <!-- Dashboard Overview -->
@@ -46,26 +46,26 @@
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-semibold">Windows</h2>
                         <a href="" class="bg-blue-500 text-white py-2 px-4 rounded">See More</a>
-                        {{-- <a href="{{ route('admin.windows') }}" class="bg-blue-500 text-white py-2 px-4 rounded">See More</a> --}}
                     </div>
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto bg-gray-50 rounded-lg shadow-lg">
                         <table class="min-w-full border divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+                            <thead class="bg-gray-600 text-white">
                                 <tr>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-500">Window</th>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-500">Status</th>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-500">Service</th>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-500">Verified Queues</th>
+                                    <th class="px-4 py-2 text-left font-medium">Window</th>
+                                    <th class="px-4 py-2 text-left font-medium">Status</th>
+                                    <th class="px-4 py-2 text-left font-medium">Service</th>
+                                    <th class="px-4 py-2 text-left font-medium">Verified Queues</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+                            <tbody>
                                 @foreach($windows as $window)
-                                    <tr>
-                                        <td class="px-4 py-2">{{ $window->name }}</td>
-                                        <td class="px-4 py-2 {{ $window->status === 'online' ? 'text-green-500' : 'text-red-500' }}">{{ ucfirst($window->status) }}</td>
-                                        <td class="px-4 py-2">{{ $window->service->name ?? 'No Service Assigned' }}</td>
-                                        <td class="px-4 py-2 text-center">
-                                            <!-- Count verified tickets for this window -->
+                                    <tr class="{{ $loop->even ? 'bg-gray-200' : 'bg-gray-100' }} hover:bg-gray-300 transition duration-200">
+                                        <td class="px-4 py-2 text-gray-700 font-semibold">{{ $window->name }}</td>
+                                        <td class="px-4 py-2 {{ $window->status === 'online' ? 'text-green-500' : 'text-red-500' }}">
+                                            {{ ucfirst($window->status) }}
+                                        </td>
+                                        <td class="px-4 py-2 text-gray-600">{{ $window->service->name ?? 'No Service Assigned' }}</td>
+                                        <td class="px-4 py-2 text-center text-gray-600">
                                             {{ $window->tickets()->where('verify', 'verified')->count() }}
                                         </td>
                                     </tr>
@@ -74,7 +74,6 @@
                         </table>
                     </div>
                 </div>
-                
                 <!-- End Table of Windows -->
             </div>
             <!-- End Main Content -->

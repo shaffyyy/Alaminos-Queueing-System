@@ -2,7 +2,7 @@
     <x-slot  name="header">
         <div>
             <h1 class="font-semibold text-xl text-gray-800 leading-tight">
-                queue fdcashier
+                Queue Request
             </h1>
         </div>
     </x-slot>
