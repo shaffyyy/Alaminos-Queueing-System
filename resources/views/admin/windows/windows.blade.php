@@ -33,7 +33,7 @@
                                 <tr>
                                     <th class="py-3 px-4 text-left font-medium">Window ID</th>
                                     <th class="py-3 px-4 text-left font-medium">Name</th>
-                                    <th class="py-3 px-4 text-left font-medium">Service</th>
+                                    <th class="py-3 px-4 text-center font-medium">Services</th>
                                     <th class="py-3 px-4 text-left font-medium">Cashier</th>
                                     <th class="py-3 px-4 text-left font-medium">Actions</th>
                                 </tr>
@@ -43,7 +43,17 @@
                                     <tr class="{{ $loop->even ? 'bg-gray-200' : 'bg-gray-100' }} hover:bg-gray-300 transition duration-200">
                                         <td class="py-3 px-4 text-gray-700 font-semibold">{{ $window->id }}</td>
                                         <td class="py-3 px-4 text-gray-700">{{ $window->name }}</td>
-                                        <td class="py-3 px-4 text-gray-600">{{ $window->service->name ?? 'No Service Assigned' }}</td>
+                                        <td class="py-3 px-4 text-center text-gray-600">
+                                            @if($window->services->isNotEmpty())
+                                                @foreach($window->services as $service)
+                                                    <span class="bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full text-xs font-semibold">
+                                                        {{ $service->name }}
+                                                    </span>
+                                                @endforeach
+                                            @else
+                                                <span class="text-gray-500">No Services Assigned</span>
+                                            @endif
+                                        </td>
                                         <td class="py-3 px-4 text-gray-600">{{ $window->cashier->name ?? 'No Cashier Assigned' }}</td>
                                         <td class="py-3 px-4">
                                             <a href="{{ route('admin-edit-windows', $window->id) }}" 

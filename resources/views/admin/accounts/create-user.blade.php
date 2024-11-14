@@ -9,7 +9,7 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
+            <div class="bg-gray-100 overflow-hidden shadow-xl sm:rounded-lg p-6">
                 <!-- User Creation Form -->
                 <x-validation-errors class="mb-4" />
 
@@ -44,10 +44,11 @@
                     <div class="mt-4">
                         <x-label for="usertype" value="{{ __('Role') }}" />
                         <select id="usertype" class="block mt-1 w-full" name="usertype" required>
-                            <option value="0">User </option>
+                            <option value="0">User</option>
                             <option value="1">Admin</option>
                             <option value="2">Cashier</option>
                             <option value="3">FD Cashier</option>
+                            <option value="4">PWD</option> <!-- New Role Added -->
                         </select>
                     </div>
 
@@ -74,7 +75,7 @@
                         <x-button class="ms-4">
                             {{ __('Create User') }}
                         </x-button>
-                    </div >
+                    </div>
                 </form>
             </div>
         </div>

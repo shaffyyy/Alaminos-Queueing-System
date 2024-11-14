@@ -20,6 +20,7 @@ class AdminController extends Controller
 
             switch ($usertype) {
                 case '0':
+                case '4': // PWD shares the same behavior as User
                     return view('user.home');
                 case '1':
                     return view('admin.home');
@@ -67,7 +68,7 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'usertype' => 'required|integer|in:0,1,2,3',
+            'usertype' => 'required|integer|in:0,1,2,3,4',
         ]);
 
         $user = new User();
@@ -91,7 +92,7 @@ class AdminController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $id,
-            'usertype' => 'required|integer|in:0,1,2,3',
+            'usertype' => 'required|integer|in:0,1,2,3,4',
         ]);
 
         $user = User::findOrFail($id);
@@ -146,9 +147,11 @@ class AdminController extends Controller
     // * windows-related methods :
     public function windowsView()
     {
-        $windows = Window::with('service')->get(); // Fetch windows with related service
+        $windows = Window::with('services', 'cashier')->get(); // Load services and cashier
         return view('admin.windows.windows', compact('windows'));
     }
+
+
     
     public function addWindows()
     {
@@ -162,18 +165,24 @@ class AdminController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'service_id' => 'required|exists:services,id',
-            'cashier_id' => 'nullable|exists:users,id', // Validation for cashier assignment
+            'service_id' => 'required|array', // Ensure this is an array
+            'service_id.*' => 'exists:services,id', // Validate each service ID
+            'cashier_id' => 'nullable|exists:users,id',
         ]);
-
-        Window::create([
+    
+        $window = Window::create([
             'name' => $request->name,
-            'service_id' => $request->service_id,
-            'cashier_id' => $request->cashier_id, // Store cashier assignment
+            'cashier_id' => $request->cashier_id,
         ]);
-
+    
+        // Attach multiple services
+        $window->services()->sync($request->service_id);
+    
         return redirect()->route('admin-windows')->with('success', 'New window added successfully!');
     }
+    
+
+
 
 
     public function deleteWindow($id)
@@ -186,7 +195,7 @@ class AdminController extends Controller
 
     public function editWindow($id)
     {
-        $window = Window::findOrFail($id);
+        $window = Window::with('services')->findOrFail($id); // Load services relationship
         $services = Service::all(); // Get all services for the dropdown
         $cashiers = User::where('usertype', '2')->get(); // Get all cashiers for the dropdown
         return view('admin.windows.edit-windows', compact('window', 'services', 'cashiers'));
@@ -199,19 +208,25 @@ class AdminController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'service_id' => 'required|exists:services,id',
-            'cashier_id' => 'nullable|exists:users,id', // Validation for cashier assignment
+            'service_id' => 'required|array', // Validate as array
+            'service_id.*' => 'exists:services,id', // Ensure each ID exists
+            'cashier_id' => 'nullable|exists:users,id', // Validate cashier ID
         ]);
-
+    
         $window = Window::findOrFail($id);
+    
+        // Update the basic fields
         $window->update([
             'name' => $request->name,
-            'service_id' => $request->service_id,
-            'cashier_id' => $request->cashier_id, // Update cashier assignment
+            'cashier_id' => $request->cashier_id,
         ]);
-
+    
+        // Sync services to update the pivot table
+        $window->services()->sync($request->service_id);
+    
         return redirect()->route('admin-windows')->with('success', 'Window updated successfully!');
     }
+    
 
     
 

@@ -14,8 +14,10 @@ class Service extends Model
     // A service can have many windows
     public function windows()
     {
-        return $this->hasMany(Window::class);
+        return $this->belongsToMany(Window::class, 'service_window');
     }
+
+
 
     // A service can have many tickets
     public function tickets()

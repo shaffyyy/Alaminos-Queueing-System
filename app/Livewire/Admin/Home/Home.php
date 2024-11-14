@@ -28,7 +28,8 @@ class Home extends Component
         $this->pendingQueues = Ticket::where('status', 'waiting')->count();
         
         // Fetch all windows with their service relationships
-        $this->windows = Window::with('service')->get();
+        $this->windows = Window::with('services')->get();
+
     }
 
     public function render()

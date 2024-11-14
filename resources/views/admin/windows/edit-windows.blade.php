@@ -16,21 +16,25 @@
                     @csrf
                     @method('PUT')
 
+                    <!-- Window Name -->
                     <div class="mb-4">
                         <label for="name" class="block font-bold">Window Name</label>
                         <input type="text" name="name" id="name" value="{{ $window->name }}" class="w-full border p-2 rounded-md" required>
                         @error('name') <span class="text-red-500">{{ $message }}</span> @enderror
                     </div>
 
+                    <!-- Enhanced Services Multi-Select -->
                     <div class="mb-4">
-                        <label for="service_id" class="block font-bold">Service</label>
-                        <select name="service_id" id="service_id" class="w-full border p-2 rounded-md" required>
+                        <label for="service_id" class="block font-bold">Services</label>
+                        <select name="service_id[]" id="service_id" class="w-full border p-2 rounded-md" multiple required>
                             @foreach($services as $service)
-                                <option value="{{ $service->id }}" {{ $window->service_id == $service->id ? 'selected' : '' }}>
+                                <option value="{{ $service->id }}" 
+                                    {{ $window->services->contains($service->id) ? 'selected' : '' }}>
                                     {{ $service->name }}
                                 </option>
                             @endforeach
                         </select>
+                        <small class="text-gray-500">Select one or more services.</small>
                         @error('service_id') <span class="text-red-500">{{ $message }}</span> @enderror
                     </div>
 
@@ -48,6 +52,7 @@
                         @error('cashier_id') <span class="text-red-500">{{ $message }}</span> @enderror
                     </div>
 
+                    <!-- Buttons -->
                     <div class="flex justify-end space-x-2">
                         <!-- Back Button -->
                         <a href="{{ route('admin-windows') }}" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition duration-200">
@@ -64,9 +69,25 @@
         </div>
     </div>
 
+    <!-- Include Choices.js Styles and Script -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
     <!-- Include SweetAlert2 Library -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize Choices.js on the service multi-select field
+            const serviceSelect = new Choices('#service_id', {
+                removeItemButton: true,
+                placeholder: true,
+                placeholderValue: 'Select services...',
+                searchPlaceholderValue: 'Search services...',
+                maxItemCount: 5, // Limit the maximum number of selected items (optional)
+            });
+        });
+
         function confirmUpdate() {
             Swal.fire({
                 title: 'Are you sure?',

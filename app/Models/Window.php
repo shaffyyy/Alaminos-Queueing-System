@@ -12,10 +12,14 @@ class Window extends Model
     protected $fillable = ['name', 'service_id', 'cashier_id', 'status'];
 
     // A window belongs to a service
-    public function service()
+    public function services()
     {
-        return $this->belongsTo(Service::class);
+        return $this->belongsToMany(Service::class, 'service_window');
     }
+    
+
+
+
 
     // A window can serve many tickets
     public function tickets()

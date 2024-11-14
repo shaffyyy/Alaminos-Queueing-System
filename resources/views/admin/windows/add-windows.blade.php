@@ -25,15 +25,16 @@
 
                     <!-- Service Selection -->
                     <div class="mb-4">
-                        <label for="service_id" class="block text-gray-700">Assign Service</label>
-                        <select name="service_id" id="service_id" class="w-full border-gray-300 rounded-md shadow-sm" required>
-                            <option value="">Select a Service</option>
+                        <label for="service_id" class="block text-gray-700">Assign Services</label>
+                        <select name="service_id[]" id="service_id" multiple class="w-full border-gray-300 rounded-md shadow-sm">
                             @foreach($services as $service)
                                 <option value="{{ $service->id }}">{{ $service->name }}</option>
                             @endforeach
                         </select>
+                        <small class="text-gray-500">Hold CTRL (or Command) to select multiple services.</small>
+                        
                     </div>
-
+                    
                     <!-- Cashier Selection -->
                     <div class="mb-4">
                         <label for="cashier_id" class="block text-gray-700">Assign Cashier</label>
@@ -62,4 +63,21 @@
             </div>
         </div>
     </div>
+
+    <!-- Include Choices.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Enhance the multi-select with Choices.js
+            const multiSelect = new Choices('#service_id', {
+                removeItemButton: true,
+                maxItemCount: 10,
+                searchEnabled: true,
+                placeholderValue: 'Select services',
+                searchPlaceholderValue: 'Type to search services...',
+            });
+        });
+    </script>
 </x-app-layout>
