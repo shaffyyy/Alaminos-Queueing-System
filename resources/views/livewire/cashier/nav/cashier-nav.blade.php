@@ -101,12 +101,12 @@
                                 {{ __('Profile') }}
                             </x-admin-nav-link>
                         </li>
-                        <li class="px-4 py-2">
+                        {{-- <li class="px-4 py-2">
                             <x-admin-nav-link href="{{ route('admin-reports') }}" :active="request()->routeIs('admin-reports')">
                                 {{ __('Reports') }}
                             </x-admin-nav-link>
-                        </li>
-                        <li class="px-4 py-2">
+                        </li> --}}
+                        {{-- <li class="px-4 py-2">
                             <x-admin-nav-link href="{{ route('admin-monitor') }}" :active="request()->routeIs('admin-monitor')">
                                 {{ __('Monitor') }}
                             </x-admin-nav-link>
@@ -115,7 +115,7 @@
                             <x-admin-nav-link href="{{ route('admin-help') }}" :active="request()->routeIs('admin-help')">
                                 {{ __('Help') }}
                             </x-admin-nav-link>
-                        </li>
+                        </li> --}}
                         <li class="px-4 py-2">
                             <form method="POST" action="{{ route('logout') }}" x-data>
                                 @csrf

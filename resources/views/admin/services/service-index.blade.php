@@ -30,7 +30,7 @@
                                 <tr>
                                     <th class="py-3 px-4 border text-left font-medium">Name</th>
                                     <th class="py-3 px-4 border text-left font-medium">Description</th>
-                                    <th class="py-3 px-4 border text-left font-medium">Status</th>
+                                    
                                     <th class="py-3 px-4 border text-left font-medium">Actions</th>
                                 </tr>
                             </thead>
@@ -39,11 +39,7 @@
                                     <tr class="{{ $loop->even ? 'bg-gray-200' : 'bg-gray-100' }} hover:bg-gray-300 transition duration-200">
                                         <td class="py-3 px-4 border font-semibold text-gray-700">{{ $service->name }}</td>
                                         <td class="py-3 px-4 border text-gray-600">{{ $service->description }}</td>
-                                        <td class="py-3 px-4 border text-gray-600">
-                                            <span class="{{ $service->status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }} text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">
-                                                {{ $service->status ? 'Active' : 'Inactive' }}
-                                            </span>
-                                        </td>
+                                        
                                         <td class="py-3 px-4 border text-gray-600">
                                             <a href="{{ route('admin-edit-service', $service->id) }}" class="text-blue-500 hover:underline">Edit</a> |
                                             <button onclick="deleteConfirmation({{ $service->id }})" class="text-red-500 hover:underline">Delete</button>
