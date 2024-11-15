@@ -114,7 +114,7 @@
 
                     <!-- Footer -->
                     @auth
-                        @if (Auth::user()->usertype == 0)
+                        @if (Auth::user()->usertype == 0 || 4)
                             @livewire('footer')
                         @endif
                     @endauth

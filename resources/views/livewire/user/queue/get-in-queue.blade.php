@@ -52,24 +52,15 @@
                     class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition duration-200">
                 Cancel
             </button>
-            
         @else
             <p class="text-blue-700">Please join the queue to see your status here.</p>
         @endif
     </div>
 
-    <!-- Only show the pending verification message if the ticket is not canceled -->
     @if ($pendingVerificationMessage && $queueNumber && $currentTicketId)
         <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mt-6 rounded-lg">
             <p class="font-bold">Proceed to the Front Desk</p>
             <p>Your ticket is pending verification. Please proceed to the front desk to verify your ticket.</p>
         </div>
     @endif
-
-    <!-- Confirmation for Cancel Queue -->
-    <script>
-        function confirmCancel() {
-            return confirm('Are you sure you want to cancel the queue? This action cannot be undone.');
-        }
-    </script>
 </div>

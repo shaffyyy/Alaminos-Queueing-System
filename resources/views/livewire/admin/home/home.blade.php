@@ -64,13 +64,20 @@
                                         <td class="px-4 py-2 {{ $window->status === 'online' ? 'text-green-500' : 'text-red-500' }}">
                                             {{ ucfirst($window->status) }}
                                         </td>
-                                        <td class="px-4 py-2 text-gray-600">{{ $window->service->name ?? 'No Service Assigned' }}</td>
+                                        <td class="px-4 py-2 text-gray-600">
+                                            @if($window->services->isNotEmpty())
+                                                {{ $window->services->pluck('name')->join(', ') }}
+                                            @else
+                                                No Service Assigned
+                                            @endif
+                                        </td>
                                         <td class="px-4 py-2 text-center text-gray-600">
                                             {{ $window->tickets()->where('verify', 'verified')->count() }}
                                         </td>
                                     </tr>
                                 @endforeach
                             </tbody>
+                            
                         </table>
                     </div>
                 </div>

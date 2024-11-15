@@ -44,7 +44,14 @@
                                         <td class="px-4 py-3 {{ $window->status === 'active' ? 'text-green-500' : 'text-red-500' }}">
                                             {{ ucfirst($window->status) }}
                                         </td>
-                                        <td class="px-4 py-3 text-gray-600">{{ $window->service->name ?? 'N/A' }}</td>
+                                        <td class="px-4 py-3 text-gray-600">
+                                            @if($window->services->isNotEmpty())
+                                                {{ $window->services->pluck('name')->join(', ') }}
+                                            @else
+                                                N/A
+                                            @endif
+                                        </td>
+                                        
                                         <td class="px-4 py-3 text-gray-600">
                                             {{ $window->tickets_count }}
                                         </td>

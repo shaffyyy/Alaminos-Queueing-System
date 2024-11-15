@@ -1,18 +1,16 @@
 <?php
-
 namespace App\Livewire\Admin\Home;
 
 use Livewire\Component;
 use App\Models\Ticket;
-use App\Models\Window;  // Import Window model
-use Carbon\Carbon;
+use App\Models\Window;
 
 class Home extends Component
 {
     public $totalQueues;
     public $activeQueues;
     public $pendingQueues;
-    public $windows;  // Define windows property
+    public $windows;
 
     protected $listeners = ['refreshData' => '$refresh'];
 
@@ -26,18 +24,16 @@ class Home extends Component
         $this->totalQueues = Ticket::count();
         $this->activeQueues = Ticket::where('status', 'in-service')->count();
         $this->pendingQueues = Ticket::where('status', 'waiting')->count();
-        
-        // Fetch all windows with their service relationships
-        $this->windows = Window::with('services')->get();
 
+        // Fetch all windows with their services relationship
+        $this->windows = Window::with('services')->get();
     }
 
     public function render()
     {
-        $this->loadData();
-
         return view('livewire.admin.home.home', [
-            'windows' => $this->windows  // Pass windows to the view
+            'windows' => $this->windows
         ]);
     }
 }
+

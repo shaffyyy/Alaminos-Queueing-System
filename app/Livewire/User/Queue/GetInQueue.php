@@ -24,15 +24,15 @@ class GetInQueue extends Component
     public function loadQueueStatus()
     {
         $ticket = Ticket::where('user_id', Auth::id())
-                        ->whereIn('status', ['waiting', 'in-service'])
-                        ->latest()
-                        ->first();
+            ->whereIn('status', ['waiting', 'in-service'])
+            ->latest()
+            ->first();
 
         if ($ticket) {
             $this->queueNumber = $ticket->queue_number;
             $this->pendingVerificationMessage = ($ticket->status === 'waiting' && $ticket->verify === 'unverified');
-            $this->currentTicketId = $ticket->id; // Store the ticket ID
-            
+            $this->currentTicketId = $ticket->id;
+
             if ($ticket->verify === 'verified' && $ticket->window) {
                 $this->assignedWindow = $ticket->window->name ?? 'N/A';
             }
@@ -50,13 +50,19 @@ class GetInQueue extends Component
             'service' => 'required|exists:services,id',
         ]);
 
-        // Find the window with the fewest queues for the selected service
+        // Check if the user is PWD (usertype == 4) to assign priority
+        $isPriority = Auth::user()->usertype == 4;
+
+        // Find the available window for the selected service
         $availableWindow = Window::where('status', 'active')
-            ->whereHas('service', function ($query) {
-                $query->where('id', $this->service);
+            ->whereHas('services', function ($query) {
+                $query->where('services.id', $this->service); // Use alias to avoid ambiguity
             })
-            ->withCount(['tickets' => function ($query) {
+            ->withCount(['tickets' => function ($query) use ($isPriority) {
                 $query->whereIn('status', ['waiting', 'in-service']);
+                if ($isPriority) {
+                    $query->where('priority', true); // Prioritize for PWD users
+                }
             }])
             ->orderBy('tickets_count') // Select the window with the fewest queues
             ->first();
@@ -65,19 +71,18 @@ class GetInQueue extends Component
             $serviceName = Service::find($this->service)->name;
             $initials = strtoupper(substr($serviceName, 0, 2));
 
-            // Create a ticket without a queue number to retrieve the ticket ID
+            // Create a ticket
             $ticket = Ticket::create([
                 'user_id' => Auth::id(),
                 'service_id' => $this->service,
                 'window_id' => $availableWindow->id,
                 'status' => 'waiting',
                 'queue_number' => null,
+                'priority' => $isPriority,
             ]);
 
-            // Generate queue number using initials and ticket ID
+            // Generate the queue number
             $queueNumber = $initials . str_pad($ticket->id, 3, '0', STR_PAD_LEFT);
-
-            // Update the ticket with the generated queue number
             $ticket->queue_number = $queueNumber;
             $ticket->save();
 
@@ -93,9 +98,6 @@ class GetInQueue extends Component
         }
     }
 
-
-    
-
     public function cancelTicket($ticketId)
     {
         $ticket = Ticket::where('user_id', Auth::id())->where('id', $ticketId)->first();
@@ -103,9 +105,9 @@ class GetInQueue extends Component
             $ticket->status = 'cancelled';
             $ticket->save();
             session()->flash('message', 'Your ticket has been cancelled.');
-            $this->queueNumber = null; // Reset the queue number
-            $this->assignedWindow = null; // Reset the assigned window
-            $this->currentTicketId = null; // Reset the ticket ID
+            $this->queueNumber = null;
+            $this->assignedWindow = null;
+            $this->currentTicketId = null;
         } else {
             session()->flash('error', 'Ticket not found or already cancelled.');
         }

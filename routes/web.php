@@ -191,13 +191,39 @@ Route::get('/fdcashier/home', [FDCashierController::class, 'index'])->name('fdca
 // cashier queues links
 Route::get('/fdcashier/queue', [FDCashierController::class, 'showQueue'])->name('fdcashier-queue');
 
+// cashier walk ins links
+Route::get('/fdcashier/walkin', [FDCashierController::class, 'walkIn'])->name('fdcashier-walkin');
+// cashier walk ins links
+Route::get('/fdcashier/walkin/create', [FDCashierController::class, 'createwalkIn'])->name('fdcashier-walkin-create');
+
+Route::post('/fdcashier/walkin/store', [FDCashierController::class, 'storeWalkIn'])->name('fdcashier-walkin-store');
+
+
+
+
+// Front desk cashier accounts page
+Route::get('/fdcashier/accounts', [FDCashierController::class, 'showAcc'])->name('fdcashier-accounts');
+
+
+// cashier add accounts links
+Route::get('/fdcashier/accounts/create', [FDCashierController::class, 'createAcc'])->name('fdcashier-accounts-create');
+// cashier add accounts links
+Route::post('/fdcashier/accounts/store', [FDCashierController::class, 'storeAcc'])->name('fdcashier-accounts-store');
+// cashier add accounts links
+Route::get('/fdcashier/accounts/{id}/edit', [FDCashierController::class, 'editAcc'])->name('fdcashier-accounts-edit');
+// update
+Route::put('/fdcashier/accounts/{id}', [FDCashierController::class, 'updateAcc'])->name('fdcashier-accounts-update');
+
+
+// Route for deleting an account
+Route::delete('/fdcashier/accounts/{id}', [FDCashierController::class, 'deleteAcc'])->name('fdcashier-accounts-delete');
+
+
+
 // cashier reports links
 Route::get('/fdcashier/reports', [FDCashierController::class, 'showReports'])->name('fdcashier-reports');
 
-// cashier reports links
-Route::get('/fdcashier/reports', [CashierController::class, 'showReports'])->name('fdcashier-reports');
-
-// cashier reports links
-Route::get('/fdcashier/reports', [CashierController::class, 'showReports'])->name('fdcashier-reports');
+// cashier monitor links
+Route::get('/fdcashier/monitor', [FDCashierController::class, 'monitor'])->name('fdcashier-monitor');
 
 

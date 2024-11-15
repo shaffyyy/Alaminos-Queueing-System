@@ -12,7 +12,7 @@ class QueueHistory extends Component
 {
     use WithPagination;
 
-    public $selectedDateFilter = 'all';
+    public $selectedDateFilter = 'today'; // Default filter is "today"
     public $startDate;
     public $endDate;
     public $sortColumn = 'created_at';
@@ -23,10 +23,6 @@ class QueueHistory extends Component
         $this->selectedDateFilter = $range;
 
         switch ($range) {
-            case 'all':
-                $this->startDate = null;
-                $this->endDate = null;
-                break;
             case 'today':
                 $this->startDate = Carbon::today();
                 $this->endDate = Carbon::tomorrow()->subSecond();
@@ -40,8 +36,8 @@ class QueueHistory extends Component
                 $this->endDate = Carbon::tomorrow()->subSecond();
                 break;
             default:
-                $this->startDate = null;
-                $this->endDate = null;
+                $this->startDate = Carbon::today();
+                $this->endDate = Carbon::tomorrow()->subSecond();
                 break;
         }
     }
@@ -66,12 +62,6 @@ class QueueHistory extends Component
         } else {
             session()->flash('error', 'Failed to delete the ticket.');
         }
-    }
-
-    // Add the loadQueueStatus method to handle polling
-    public function loadQueueStatus()
-    {
-        // Optional: Any code to refresh data
     }
 
     public function render()

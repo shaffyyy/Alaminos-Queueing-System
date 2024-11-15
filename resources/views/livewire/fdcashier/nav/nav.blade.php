@@ -23,6 +23,18 @@
                                 {{ __('Queues') }}
                             </x-admin-nav-link>
                         </li>
+                        {{--  --}}
+                        <li class="px-4 py-2">
+                            <x-admin-nav-link href="{{ route('fdcashier-walkin') }}" :active="request()->routeIs('fdcashier-walkin')">
+                                {{ __('Walk In Queue') }}
+                            </x-admin-nav-link>
+                        </li>
+                        {{--  --}}
+                        <li class="px-4 py-2">
+                            <x-admin-nav-link href="{{ route('fdcashier-accounts') }}" :active="request()->routeIs('fdcashier-accounts')">
+                                {{ __('Accounts') }}
+                            </x-admin-nav-link>
+                        </li>
 
                         <!-- Windows Dropdown -->
                         {{-- <li class="px-4 py-2" x-data="{ open: false }">

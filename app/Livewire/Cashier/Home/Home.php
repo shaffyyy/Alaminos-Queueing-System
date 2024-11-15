@@ -41,10 +41,15 @@ class Home extends Component
 
     public function render()
     {
-        // Only retrieve the assigned window
-        $windows = $this->assignedWindow ? Window::withCount(['tickets' => function ($query) {
-            $query->whereIn('status', ['waiting', 'in-service']);
-        }])->where('id', $this->assignedWindow->id)->get() : collect();
+        // Retrieve the assigned window with services and ticket counts
+        $windows = $this->assignedWindow ? 
+            Window::with(['services', 'tickets' => function ($query) {
+                $query->whereIn('status', ['waiting', 'in-service']);
+            }])
+            ->withCount(['tickets'])
+            ->where('id', $this->assignedWindow->id)
+            ->get() 
+            : collect();
 
         return view('livewire.cashier.home.home', [
             'windows' => $windows,
@@ -53,4 +58,5 @@ class Home extends Component
             'pendingQueues' => $this->pendingQueues,
         ]);
     }
+
 }
