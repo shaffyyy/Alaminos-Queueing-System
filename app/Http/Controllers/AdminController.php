@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Feedback;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\Service; // Add the Service model
 use App\Models\Window;
+use Carbon\Carbon;
 use Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -304,5 +306,49 @@ class AdminController extends Controller
         $service->delete();
 
         return redirect()->route('admin-view-services')->with('success', 'Service deleted successfully!');
+    }
+
+
+
+
+    // Report functionality
+    public function reports(Request $request)
+    {
+        // Filters
+        $dateFilter = $request->get('dateFilter', 'today');
+        $serviceFilter = $request->get('serviceFilter', null);
+
+        // Date Range Logic
+        $startDate = Carbon::today();
+        $endDate = Carbon::now();
+
+        if ($dateFilter === 'yesterday') {
+            $startDate = Carbon::yesterday();
+            $endDate = Carbon::yesterday()->endOfDay();
+        } elseif ($dateFilter === '7days') {
+            $startDate = Carbon::now()->subDays(6);
+            $endDate = Carbon::now();
+        } elseif ($dateFilter === 'thisMonth') {
+            $startDate = Carbon::now()->startOfMonth();
+            $endDate = Carbon::now();
+        }
+
+        // Query Tickets with Filters
+        $tickets = Ticket::with('service', 'user', 'window')
+            ->when($serviceFilter, function ($query) use ($serviceFilter) {
+                return $query->where('service_id', $serviceFilter);
+            })
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get();
+
+        // Fetch all services for filtering options
+        $services = Service::all();
+
+        // Fetch feedback summary
+        $feedback = Feedback::with('user', 'ticket')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get();
+
+        return view('admin.reports', compact('tickets', 'services', 'feedback', 'dateFilter', 'serviceFilter'));
     }
 }

@@ -55,9 +55,8 @@ Route::get('/user/queue-history', function(){
 Route::get('/admin/home', function(){
     return view('admin.home');
 })->name('admin-home');
-Route::get('/admin/reports', function(){
-    return view('admin.reports');
-})->name('admin-reports');
+Route::get('/admin/reports', [AdminController::class, 'reports'])->name('admin-reports');
+
 Route::get('/admin/monitor', function(){
     return view('admin.monitor');
 })->name('admin-monitor');
