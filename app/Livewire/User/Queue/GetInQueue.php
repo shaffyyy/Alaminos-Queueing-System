@@ -56,15 +56,15 @@ class GetInQueue extends Component
         // Find the available window for the selected service
         $availableWindow = Window::where('status', 'active')
             ->whereHas('services', function ($query) {
-                $query->where('services.id', $this->service); // Use alias to avoid ambiguity
+                $query->where('services.id', $this->service);
             })
-            ->withCount(['tickets' => function ($query) use ($isPriority) {
-                $query->whereIn('status', ['waiting', 'in-service']);
-                if ($isPriority) {
-                    $query->where('priority', true); // Prioritize for PWD users
-                }
+            ->withCount(['tickets as priority_ticket_count' => function ($query) {
+                $query->where('priority', true)->whereIn('status', ['waiting', 'in-service']);
             }])
-            ->orderBy('tickets_count') // Select the window with the fewest queues
+            ->withCount(['tickets as regular_ticket_count' => function ($query) {
+                $query->where('priority', false)->whereIn('status', ['waiting', 'in-service']);
+            }])
+            ->orderBy($isPriority ? 'priority_ticket_count' : 'regular_ticket_count') // Prioritize windows with fewer priority tickets for PWD users
             ->first();
 
         if ($availableWindow) {
@@ -97,6 +97,7 @@ class GetInQueue extends Component
             session()->flash('error', 'No available windows for the selected service at the moment.');
         }
     }
+
 
     public function cancelTicket($ticketId)
     {

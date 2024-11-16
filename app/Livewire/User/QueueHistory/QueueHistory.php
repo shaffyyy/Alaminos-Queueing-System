@@ -4,6 +4,7 @@ namespace App\Livewire\User\QueueHistory;
 
 use Livewire\Component;
 use App\Models\Ticket;
+use App\Models\Feedback;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\WithPagination;
@@ -12,11 +13,16 @@ class QueueHistory extends Component
 {
     use WithPagination;
 
-    public $selectedDateFilter = 'today'; // Default filter is "today"
+    public $selectedDateFilter = 'today';
     public $startDate;
     public $endDate;
     public $sortColumn = 'created_at';
     public $sortDirection = 'desc';
+
+    public $showFeedbackModal = false;
+    public $selectedTicketId;
+    public $feedback;
+    public $rating; // Star rating
 
     public function filterByDate($range)
     {
@@ -42,26 +48,35 @@ class QueueHistory extends Component
         }
     }
 
-    public function sortBy($column)
+    public function openFeedbackModal($ticketId)
     {
-        if ($this->sortColumn === $column) {
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortDirection = 'asc';
-        }
-        $this->sortColumn = $column;
+        $this->selectedTicketId = $ticketId;
+        $this->showFeedbackModal = true;
     }
 
-    public function deleteTicket($ticketId)
+    public function closeFeedbackModal()
     {
-        $ticket = Ticket::where('id', $ticketId)->where('user_id', Auth::id())->first();
+        $this->showFeedbackModal = false;
+        $this->feedback = '';
+        $this->rating = null;
+    }
 
-        if ($ticket) {
-            $ticket->delete();
-            session()->flash('message', 'Ticket deleted successfully.');
-        } else {
-            session()->flash('error', 'Failed to delete the ticket.');
-        }
+    public function submitFeedback()
+    {
+        $this->validate([
+            'feedback' => 'required|min:5|max:500',
+            'rating' => 'required|integer|between:1,5',
+        ]);
+
+        Feedback::create([
+            'ticket_id' => $this->selectedTicketId,
+            'user_id' => Auth::id(),
+            'feedback' => $this->feedback,
+            'rating' => $this->rating,
+        ]);
+
+        session()->flash('message', 'Thank you for your feedback!');
+        $this->closeFeedbackModal();
     }
 
     public function render()

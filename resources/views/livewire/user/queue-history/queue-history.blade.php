@@ -5,16 +5,6 @@
         <p class="text-gray-600 text-base md:text-lg">Review your past queue records and monitor service history.</p>
     </div>
 
-    <!-- Date Filter Dropdown aligned to the right -->
-    <div class="flex justify-end mb-8">
-        <label for="dateFilter" class="mr-2 text-gray-700 font-semibold">Filter by Date:</label>
-        <select id="dateFilter" wire:model="selectedDateFilter" wire:change="filterByDate($event.target.value)" class="border border-gray-300 rounded-lg p-2">
-            <option value="today">Today</option>
-            <option value="yesterday">Yesterday</option>
-            <option value="7days">Previous 7 Days</option>
-        </select>
-    </div>
-
     <!-- Queue History Section -->
     <div class="space-y-4">
         @if($tickets->isEmpty())
@@ -40,8 +30,20 @@
                                 </span>
                             </p>
                         </div>
-                        <div>
+
+                        <!-- Actions -->
+                        <div class="flex space-x-4">
+                            <!-- Feedback Button -->
+                            @if($ticket->status === 'completed')
+                                <button wire:click="openFeedbackModal({{ $ticket->id }})"
+                                        class="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition duration-200">
+                                    Leave Feedback
+                                </button>
+                            @endif
+
+                            <!-- Delete Button -->
                             <button wire:click="deleteTicket({{ $ticket->id }})"
+                                    onclick="return confirm('Are you sure you want to delete this ticket?')"
                                     class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition duration-200">
                                 Delete
                             </button>
@@ -52,8 +54,38 @@
         @endif
     </div>
 
-    <!-- Pagination -->
-    <div class="mt-8">
-        {{ $tickets->links() }}
-    </div>
+    <!-- Feedback Modal -->
+    @if($showFeedbackModal)
+        <div class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                <h2 class="text-lg font-bold mb-4">Leave Feedback</h2>
+                <form wire:submit.prevent="submitFeedback">
+                    <!-- Star Rating -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-semibold mb-2">Rating</label>
+                        <div class="flex space-x-1">
+                            @for($i = 1; $i <= 5; $i++)
+                                <button type="button" wire:click="$set('rating', {{ $i }})" class="text-2xl">
+                                    <span class="{{ $i <= $rating ? 'text-yellow-500' : 'text-gray-300' }}">&#9733;</span>
+                                </button>
+                            @endfor
+                        </div>
+                        @error('rating') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+
+                    <!-- Feedback Description -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-semibold mb-2">Feedback</label>
+                        <textarea wire:model="feedback" class="w-full border border-gray-300 rounded-lg p-2" rows="4" placeholder="Write your feedback here..."></textarea>
+                        @error('feedback') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div class="flex justify-end space-x-2">
+                        <button type="button" wire:click="closeFeedbackModal" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">Cancel</button>
+                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 </div>
