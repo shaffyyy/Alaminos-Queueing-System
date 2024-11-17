@@ -9,7 +9,7 @@
                         <p>No verified queues available for this window.</p>
                     </div>
                 @else
-                    <div class="overflow-x-auto bg-gray-50  rounded-lg shadow-lg">
+                    <div class="overflow-x-auto bg-gray-50 rounded-lg shadow-lg">
                         <table class="min-w-full border divide-y divide-gray-200">
                             <thead class="bg-gray-600 text-white">
                                 <tr>
@@ -37,6 +37,9 @@
                                                     Complete Service
                                                 </button>
                                             @endif
+                                            <button wire:click="cancelQueue({{ $queue->id }})" class="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-600 transition duration-200">
+                                                Cancel
+                                            </button>
                                         </td>
                                     </tr>
                                 @endforeach

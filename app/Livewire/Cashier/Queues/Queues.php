@@ -32,7 +32,7 @@ class Queues extends Component
             $this->queues = Ticket::with(['user', 'service', 'window'])
                 ->where('window_id', $this->assignedWindow->id) // Filter by assigned window
                 ->where('verify', 'verified') // Only include verified tickets
-                ->whereNotIn('status', ['completed']) // Exclude completed tickets
+                ->whereNotIn('status', ['completed', 'cancelled']) // Exclude completed and cancelled tickets
                 ->orderBy('created_at', 'asc')
                 ->get();
         } else {
@@ -62,10 +62,24 @@ class Queues extends Component
         }
     }
 
+    public function cancelQueue($ticketId)
+    {
+        $ticket = Ticket::find($ticketId);
+        if ($ticket && in_array($ticket->status, ['waiting', 'in-service'])) {
+            $ticket->status = 'cancelled';
+            $ticket->save();
+            $this->loadQueues();
+            session()->flash('message', 'The ticket has been successfully cancelled.');
+        }
+    }
+
     public function render()
     {
         return view('livewire.cashier.queues.queues', [
             'assignedWindow' => $this->assignedWindow,
         ]);
     }
+
+
+
 }
