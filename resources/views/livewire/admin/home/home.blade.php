@@ -1,4 +1,4 @@
-<div wire:poll.10s class="">
+<div class="">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden sm:rounded-lg">
             <!-- Main Content -->
@@ -29,12 +29,10 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="bg-white rounded p-4 shadow">
                             <h5 class="text-lg font-bold">Monthly Overview</h5>
-                            <!-- Chart or Graph Here -->
                             <canvas id="monthlyChart"></canvas>
                         </div>
                         <div class="bg-white rounded p-4 shadow">
                             <h5 class="text-lg font-bold">Yearly Overview</h5>
-                            <!-- Chart or Graph Here -->
                             <canvas id="yearlyChart"></canvas>
                         </div>
                     </div>
@@ -77,7 +75,6 @@
                                     </tr>
                                 @endforeach
                             </tbody>
-                            
                         </table>
                     </div>
                 </div>
@@ -87,83 +84,68 @@
         </div>
     </div>
 
-    <!-- SweetAlert and Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Chart.js Library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Monthly Pie Chart
-        var ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
-        var monthlyChart = new Chart(ctxMonthly, {
-            type: 'doughnut',
-            data: {
-                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-                datasets: [{
-                    label: 'Monthly Data',
-                    data: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120],
-                    backgroundColor: [
-                        'rgba(255, 99, 132)',
-                        'rgba(54, 162, 235)',
-                        'rgba(255, 206, 86)',
-                        'rgba(75, 192, 192)',
-                        'rgba(153, 102, 255)',
-                        'rgba(255, 159, 64)',
-                        'rgba(255, 99, 132)',
-                        'rgba(54, 162, 235)',
-                        'rgba(255, 206, 86)',
-                        'rgba(75, 192, 192)',
-                        'rgba(153, 102, 255)',
-                        'rgba(255, 159, 64)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)',
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            }
-        });
+        document.addEventListener('DOMContentLoaded', function () {
+            // Monthly Data as Bar Chart
+            var monthlyLabels = {!! json_encode(array_keys($monthlyData)) !!};
+            var monthlyValues = {!! json_encode(array_values($monthlyData)) !!};
 
-        // Yearly Pie Chart
-        var ctxYearly = document.getElementById('yearlyChart').getContext('2d');
-        var yearlyChart = new Chart(ctxYearly, {
-            type: 'doughnut',
-            data: {
-                labels: ['2018', '2019', '2020', '2021', '2022', '2023', '2024'],
-                datasets: [{
-                    label: 'Yearly Data',
-                    data: [100, 200, 300, 400, 500, 600, 700],
-                    backgroundColor: [
-                        'rgba(255, 99, 132)',
-                        'rgba(54, 162, 235)',
-                        'rgba(255, 206, 86)',
-                        'rgba(75, 192, 192)',
-                        'rgba(153, 102, 255)',
-                        'rgba(255, 159, 64)',
-                        'rgba(255, 99, 196)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)',
-                        'rgba(255, 99, 196, 1)'
-                    ],
-                    borderWidth: 3
-                }]
-            }
+            var ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
+            var monthlyChart = new Chart(ctxMonthly, {
+                type: 'bar',
+                data: {
+                    labels: monthlyLabels.map(month => {
+                        const monthNames = [
+                            'January', 'February', 'March', 'April', 'May', 'June',
+                            'July', 'August', 'September', 'October', 'November', 'December'
+                        ];
+                        return monthNames[month - 1]; // Convert month number to name
+                    }),
+                    datasets: [{
+                        label: 'Monthly Tickets',
+                        data: monthlyValues,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Yearly Data as Line Chart
+            var yearlyLabels = {!! json_encode(array_keys($yearlyData)) !!};
+            var yearlyValues = {!! json_encode(array_values($yearlyData)) !!};
+
+            var ctxYearly = document.getElementById('yearlyChart').getContext('2d');
+            var yearlyChart = new Chart(ctxYearly, {
+                type: 'line',
+                data: {
+                    labels: yearlyLabels,
+                    datasets: [{
+                        label: 'Yearly Tickets',
+                        data: yearlyValues,
+                        backgroundColor: 'rgba(54, 162, 235, 0.4)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2,
+                        fill: true
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
         });
     </script>
 </div>
