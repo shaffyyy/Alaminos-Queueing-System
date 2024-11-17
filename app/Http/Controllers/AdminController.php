@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Feedback;
 use App\Models\Ticket;
 use App\Models\User;
@@ -351,4 +352,44 @@ class AdminController extends Controller
 
         return view('admin.reports', compact('tickets', 'services', 'feedback', 'dateFilter', 'serviceFilter'));
     }
+    public function generatePDF(Request $request)
+    {
+        // Filters
+        $dateFilter = $request->get('dateFilter', 'today');
+        $serviceFilter = $request->get('serviceFilter', null);
+    
+        // Date Range Logic
+        $startDate = Carbon::today();
+        $endDate = Carbon::now();
+    
+        if ($dateFilter === 'yesterday') {
+            $startDate = Carbon::yesterday();
+            $endDate = Carbon::yesterday()->endOfDay();
+        } elseif ($dateFilter === '7days') {
+            $startDate = Carbon::now()->subDays(6)->startOfDay();
+            $endDate = Carbon::now();
+        } elseif ($dateFilter === 'thisMonth') {
+            $startDate = Carbon::now()->startOfMonth();
+            $endDate = Carbon::now();
+        }
+    
+        // Fetch Tickets with Filters
+        $tickets = Ticket::with('service', 'user', 'window')
+            ->when($serviceFilter, function ($query) use ($serviceFilter) {
+                $query->where('service_id', $serviceFilter);
+            })
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get();
+    
+        // Fetch Feedback Summary
+        $feedback = Feedback::with('user', 'ticket')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get();
+    
+        // Generate PDF
+        $pdf = Pdf::loadView('admin.reports.pdf-minimal', compact('tickets', 'feedback'));
+    
+        return $pdf->download('Report_Summary_' . now()->format('Y-m-d_H-i-s') . '.pdf');
+    }
+    
 }

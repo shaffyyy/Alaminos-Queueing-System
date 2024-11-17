@@ -99,6 +99,12 @@
                         @endforelse
                     </tbody>
                 </table>
+                <div class="flex justify-end mt-4">
+                    <a href="{{ route('admin-reports-pdf', request()->query()) }}" target="_blank" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">
+                        Download PDF
+                    </a>
+                </div>
+                
             </div>
         </div>
     </div>

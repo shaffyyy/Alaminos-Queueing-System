@@ -55,7 +55,13 @@ Route::get('/user/queue-history', function(){
 Route::get('/admin/home', function(){
     return view('admin.home');
 })->name('admin-home');
+
+
 Route::get('/admin/reports', [AdminController::class, 'reports'])->name('admin-reports');
+Route::get('/admin/reports/pdf', [AdminController::class, 'generatePDF'])->name('admin-reports-pdf');
+
+
+
 
 Route::get('/admin/monitor', function(){
     return view('admin.monitor');
