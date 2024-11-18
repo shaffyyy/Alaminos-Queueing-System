@@ -318,11 +318,12 @@ class AdminController extends Controller
         // Filters
         $dateFilter = $request->get('dateFilter', 'today');
         $serviceFilter = $request->get('serviceFilter', null);
-
+        $windowFilter = $request->get('windowFilter', null);
+    
         // Date Range Logic
         $startDate = Carbon::today();
         $endDate = Carbon::now();
-
+    
         if ($dateFilter === 'yesterday') {
             $startDate = Carbon::yesterday();
             $endDate = Carbon::yesterday()->endOfDay();
@@ -333,63 +334,81 @@ class AdminController extends Controller
             $startDate = Carbon::now()->startOfMonth();
             $endDate = Carbon::now();
         }
-
+    
         // Query Tickets with Filters
         $tickets = Ticket::with('service', 'user', 'window')
             ->when($serviceFilter, function ($query) use ($serviceFilter) {
                 return $query->where('service_id', $serviceFilter);
             })
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->get();
-
-        // Fetch all services for filtering options
-        $services = Service::all();
-
-        // Fetch feedback summary
-        $feedback = Feedback::with('user', 'ticket')
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->get();
-
-        return view('admin.reports', compact('tickets', 'services', 'feedback', 'dateFilter', 'serviceFilter'));
-    }
-    public function generatePDF(Request $request)
-    {
-        // Filters
-        $dateFilter = $request->get('dateFilter', 'today');
-        $serviceFilter = $request->get('serviceFilter', null);
-    
-        // Date Range Logic
-        $startDate = Carbon::today();
-        $endDate = Carbon::now();
-    
-        if ($dateFilter === 'yesterday') {
-            $startDate = Carbon::yesterday();
-            $endDate = Carbon::yesterday()->endOfDay();
-        } elseif ($dateFilter === '7days') {
-            $startDate = Carbon::now()->subDays(6)->startOfDay();
-            $endDate = Carbon::now();
-        } elseif ($dateFilter === 'thisMonth') {
-            $startDate = Carbon::now()->startOfMonth();
-            $endDate = Carbon::now();
-        }
-    
-        // Fetch Tickets with Filters
-        $tickets = Ticket::with('service', 'user', 'window')
-            ->when($serviceFilter, function ($query) use ($serviceFilter) {
-                $query->where('service_id', $serviceFilter);
+            ->when($windowFilter, function ($query) use ($windowFilter) {
+                return $query->where('window_id', $windowFilter);
             })
             ->whereBetween('created_at', [$startDate, $endDate])
             ->get();
     
-        // Fetch Feedback Summary
+        // Fetch all services and windows for filtering options
+        $services = Service::all();
+        $windows = Window::with('services', 'cashier')->get();
+    
+        // Fetch feedback summary
         $feedback = Feedback::with('user', 'ticket')
             ->whereBetween('created_at', [$startDate, $endDate])
             ->get();
     
-        // Generate PDF
-        $pdf = Pdf::loadView('admin.reports.pdf-minimal', compact('tickets', 'feedback'));
-    
-        return $pdf->download('Report_Summary_' . now()->format('Y-m-d_H-i-s') . '.pdf');
+        return view('admin.reports', compact('tickets', 'services', 'feedback', 'windows', 'dateFilter', 'serviceFilter', 'windowFilter'));
     }
     
+
+
+
+
+    public function generatePDF(Request $request)
+{
+    $dateFilter = $request->get('dateFilter', 'today');
+    $serviceFilter = $request->get('serviceFilter', null);
+    $windowFilter = $request->get('windowFilter', null);
+
+    // Date Range Logic
+    $startDate = Carbon::today();
+    $endDate = Carbon::now();
+
+    if ($dateFilter === 'yesterday') {
+        $startDate = Carbon::yesterday();
+        $endDate = Carbon::yesterday()->endOfDay();
+    } elseif ($dateFilter === '7days') {
+        $startDate = Carbon::now()->subDays(6)->startOfDay();
+        $endDate = Carbon::now();
+    } elseif ($dateFilter === 'thisMonth') {
+        $startDate = Carbon::now()->startOfMonth();
+        $endDate = Carbon::now();
+    }
+
+    // Filter Tickets
+    $tickets = Ticket::with('service', 'user', 'window')
+        ->when($serviceFilter, function ($query) use ($serviceFilter) {
+            return $query->where('service_id', $serviceFilter);
+        })
+        ->when($windowFilter, function ($query) use ($windowFilter) {
+            return $query->where('window_id', $windowFilter);
+        })
+        ->whereBetween('created_at', [$startDate, $endDate])
+        ->get();
+
+    // Fetch Feedback
+    $feedback = Feedback::with('user', 'ticket')
+        ->whereBetween('created_at', [$startDate, $endDate])
+        ->get();
+
+    // Fetch Windows
+    $windows = Window::with('services', 'cashier')
+        ->when($windowFilter, function ($query) use ($windowFilter) {
+            return $query->where('id', $windowFilter);
+        })
+        ->get();
+
+    $pdf = Pdf::loadView('admin.reports.pdf-minimal', compact('tickets', 'feedback', 'windows'));
+
+    return $pdf->download('Report_Summary_' . now()->format('Y-m-d_H-i-s') . '.pdf');
+}
+
 }

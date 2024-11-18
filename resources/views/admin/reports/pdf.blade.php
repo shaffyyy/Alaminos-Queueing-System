@@ -9,13 +9,21 @@
             width: 100%;
             border-collapse: collapse;
         }
-        .table th, .table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
         .table th {
-            background-color: #f2f2f2;
+            background-color: #374151; /* Dark gray for the header */
+            color: white;
+            text-align: left;
+            padding: 10px;
+        }
+        .table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+        .table tr:nth-child(even) {
+            background-color: #f9fafb; /* Light gray for even rows */
+        }
+        .table tr:nth-child(odd) {
+            background-color: white; /* White for odd rows */
         }
         .text-center {
             text-align: center;
@@ -25,6 +33,9 @@
         }
         .mb-4 {
             margin-bottom: 16px;
+        }
+        h1, h2 {
+            color: #1f2937; /* Dark text color */
         }
     </style>
     <x-slot name="header">
