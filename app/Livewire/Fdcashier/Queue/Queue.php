@@ -9,9 +9,9 @@ class Queue extends Component
 {
     public $queues;
     public $verificationStatus = 'all';
-    public $searchTerm = ''; // New property for search term
+    public $searchTerm = '';
 
-    protected $listeners = ['refreshData' => '$refresh'];
+    protected $listeners = ['verifyTicket', 'undoVerifyTicket', 'cancelTicket'];
 
     public function mount()
     {
@@ -25,7 +25,7 @@ class Queue extends Component
                 $query->where('verify', $this->verificationStatus);
             })
             ->when($this->searchTerm, function ($query) {
-                $query->where('id', $this->searchTerm); // Filter by ticket ID
+                $query->where('id', $this->searchTerm);
             })
             ->where('status', '!=', 'completed')
             ->orderBy('created_at', 'asc')
@@ -39,7 +39,7 @@ class Queue extends Component
             $ticket->verify = 'verified';
             $ticket->save();
             $this->loadQueues();
-            session()->flash('verification_message', 'Ticket has been verified successfully!');
+            $this->dispatchBrowserEvent('statusMessage', 'Ticket verified successfully!');
         }
     }
 
@@ -50,7 +50,18 @@ class Queue extends Component
             $ticket->verify = 'unverified';
             $ticket->save();
             $this->loadQueues();
-            session()->flash('verification_message', 'Ticket verification has been undone.');
+            $this->dispatchBrowserEvent('statusMessage', 'Ticket verification undone.');
+        }
+    }
+
+    public function cancelTicket($ticketId)
+    {
+        $ticket = Ticket::find($ticketId);
+        if ($ticket) {
+            $ticket->status = 'cancelled';
+            $ticket->save();
+            $this->loadQueues();
+            $this->dispatchBrowserEvent('statusMessage', 'Ticket cancelled successfully!');
         }
     }
 

@@ -11,7 +11,7 @@ class Queue extends Component
     public $queues;
     public $verificationStatus = 'all';
     public $newUnverifiedCount = 0;
-    public $search = ''; // New property for search term
+    public $search = '';
 
     protected $listeners = ['refreshData' => '$refresh'];
 
@@ -28,7 +28,7 @@ class Queue extends Component
                 $query->where('verify', $this->verificationStatus);
             })
             ->whereNotIn('status', ['completed', 'cancelled'])
-            ->when($this->search, function ($query) { // Filter by search term
+            ->when($this->search, function ($query) {
                 $query->where('queue_number', 'like', '%' . $this->search . '%');
             })
             ->orderBy('created_at', 'asc')
@@ -42,25 +42,12 @@ class Queue extends Component
             ->count();
     }
 
-    public function showVerified()
-    {
-        $this->verificationStatus = 'verified';
-        $this->loadQueues();
-    }
-
-    public function showUnverified()
-    {
-        $this->verificationStatus = 'unverified';
-        $this->newUnverifiedCount = 0; // Reset count when viewed
-        $this->loadQueues();
-    }
-
     public function verifyTicket($ticketId)
     {
         $ticket = Ticket::find($ticketId);
         if ($ticket) {
             $ticket->verify = 'verified';
-            $ticket->verified_at = Carbon::now(); // Set verified_at timestamp
+            $ticket->verified_at = Carbon::now();
             $ticket->save();
             $this->loadQueues();
             $this->countNewUnverified();
@@ -73,7 +60,7 @@ class Queue extends Component
         $ticket = Ticket::find($ticketId);
         if ($ticket) {
             $ticket->verify = 'unverified';
-            $ticket->verified_at = null; // Clear the verified_at timestamp
+            $ticket->verified_at = null;
             $ticket->save();
             $this->loadQueues();
             $this->countNewUnverified();
@@ -81,9 +68,20 @@ class Queue extends Component
         }
     }
 
+    public function cancelTicket($ticketId)
+    {
+        $ticket = Ticket::find($ticketId);
+        if ($ticket) {
+            $ticket->status = 'cancelled';
+            $ticket->save();
+            $this->loadQueues();
+            session()->flash('verification_message', 'Ticket has been cancelled.');
+        }
+    }
+
     public function render()
     {
-        $this->countNewUnverified(); // Keep updating count in real-time
+        $this->countNewUnverified();
         return view('livewire.admin.queue.queue');
     }
 }

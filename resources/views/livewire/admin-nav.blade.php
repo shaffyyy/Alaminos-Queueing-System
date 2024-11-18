@@ -125,12 +125,12 @@
                                 {{ __('Monitor') }}
                             </x-admin-nav-link>
                         </li>
-                        <li class="px-4 py-2 flex items-center">
+                        {{-- <li class="px-4 py-2 flex items-center">
                             <i class="fas fa-question-circle text-gray-700 mr-3"></i>
                             <x-admin-nav-link href="{{ route('admin-help') }}" :active="request()->routeIs('admin-help')">
                                 {{ __('Help') }}
                             </x-admin-nav-link>
-                        </li>
+                        </li> --}}
                         <!-- Logout Link with SweetAlert Confirmation -->
                         <li class="px-4 py-2 flex items-center">
                             <i class="fas fa-sign-out-alt text-gray-700 mr-3"></i>

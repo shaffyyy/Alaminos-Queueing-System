@@ -19,10 +19,11 @@ class Monitor extends Component
         $this->windows = Window::with(['tickets' => function ($query) {
             $query->where('status', '!=', 'completed')
                 ->orderBy('created_at', 'asc');
-        }])->get()->map(function ($window) {
+        }, 'services']) // Eager load services relationship
+        ->get()->map(function ($window) {
             return [
                 'name' => $window->name,
-                'service' => $window->service->name ?? null,
+                'service' => $window->services->pluck('name')->join(', ') ?? 'N/A', // Get services names
                 'now_serving' => optional($window->tickets->first())->queue_number,
                 'waiting' => $window->tickets->slice(1, 3)->pluck('queue_number')->toArray(),
             ];

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Feedback;
 use App\Models\Service;
 use App\Models\Window;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Ticket;
@@ -12,7 +14,7 @@ use Illuminate\Support\Facades\Hash;
 
 class FDCashierController extends Controller
 {
-    // Home Dashboard
+    // todo Home Dashboard
     public function index()
     {
         return view('fdcashier.home.home');
@@ -31,7 +33,7 @@ class FDCashierController extends Controller
 
 
 
-    // Walk-in Management
+    // todo Walk-in Management
     public function walkIn()
     {
         // Fetch users with usertype 0 (User) and 4 (PWD)
@@ -94,6 +96,10 @@ class FDCashierController extends Controller
             ->with('success', "Priority: " . ($isPriority ? "Yes" : "No") . ". Ticket #{$queueNumber} has been assigned to {$availableWindow->name}.");
     }
 
+
+
+
+
     return redirect()->route('fdcashier-walkin')
         ->with('error', 'No available windows for the selected service.');
 }
@@ -111,7 +117,7 @@ class FDCashierController extends Controller
 
 
 
-    // Account Management
+    // todo Account Management
     public function showAcc()
     {
         $accounts = User::whereIn('usertype', [0, 4])->get(); // 0 = user, 4 = pwd
@@ -177,16 +183,71 @@ class FDCashierController extends Controller
         return redirect()->route('fdcashier-accounts')->with('success', 'Account deleted successfully.');
     }
 
-    // Report Management
-    public function showReports()
-    {
-        return view('fdcashier.reports.reports');
-    }
+    // todo Report Management
+    // public function showReports()
+    // {
+    //     return view('fdcashier.reports.reports');
+    // }
 
-    // Monitor View
+    
+    // Report functionality
+    public function showReports(Request $request)
+    {
+        // Filters
+        $dateFilter = $request->get('dateFilter', 'today');
+        $serviceFilter = $request->get('serviceFilter', null);
+        $windowFilter = $request->get('windowFilter', null);
+    
+        // Date Range Logic
+        $startDate = Carbon::today();
+        $endDate = Carbon::now();
+    
+        if ($dateFilter === 'yesterday') {
+            $startDate = Carbon::yesterday();
+            $endDate = Carbon::yesterday()->endOfDay();
+        } elseif ($dateFilter === '7days') {
+            $startDate = Carbon::now()->subDays(6);
+            $endDate = Carbon::now();
+        } elseif ($dateFilter === 'thisMonth') {
+            $startDate = Carbon::now()->startOfMonth();
+            $endDate = Carbon::now();
+        }
+    
+        // Query Tickets with Filters
+        $tickets = Ticket::with('service', 'user', 'window')
+            ->when($serviceFilter, function ($query) use ($serviceFilter) {
+                return $query->where('service_id', $serviceFilter);
+            })
+            ->when($windowFilter, function ($query) use ($windowFilter) {
+                return $query->where('window_id', $windowFilter);
+            })
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get();
+    
+        // Fetch all services and windows for filtering options
+        $services = Service::all();
+        $windows = Window::with('services', 'cashier')->get();
+    
+        // Fetch feedback summary
+        $feedback = Feedback::with('user', 'ticket')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get();
+    
+        return view('fdcashier.reports.reports', compact('tickets', 'services', 'feedback', 'windows', 'dateFilter', 'serviceFilter', 'windowFilter'));
+    }
+    
+
+
+
+    // todo Monitor View
     public function monitor()
     {
         $queues = Ticket::all();
         return view('fdcashier.monitor.monitor', compact('queues'));
     }
+
+
+
+
+
 }

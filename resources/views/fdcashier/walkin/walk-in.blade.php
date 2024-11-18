@@ -49,4 +49,19 @@
             </div>
         </div>
     </div>
+
+    <!-- Include Select2 and jQuery -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Initialize Select2 for user selection
+            $('#user_id').select2({
+                placeholder: 'Search for a user',
+                allowClear: true
+            });
+        });
+    </script>
 </x-app-layout>

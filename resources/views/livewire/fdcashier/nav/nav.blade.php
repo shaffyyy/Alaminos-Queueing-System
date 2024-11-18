@@ -13,126 +13,52 @@
                     <ul class="mt-4">
                         <li class="px-4 py-2">
                             <x-admin-nav-link href="{{ route('fdcashier-index') }}" :active="request()->routeIs('fdcashier-index')">
-                                {{ __('Dashboard') }}
+                                <i class="fas fa-tachometer-alt mr-2"></i> {{ __('Dashboard') }}
                             </x-admin-nav-link>
                         </li>
 
                         <!-- Queues Link -->
                         <li class="px-4 py-2">
                             <x-admin-nav-link href="{{ route('fdcashier-queue') }}" :active="request()->routeIs('fdcashier-queue')">
-                                {{ __('Queues') }}
+                                <i class="fas fa-list-ul mr-2"></i> {{ __('Queues') }}
                             </x-admin-nav-link>
                         </li>
-                        {{--  --}}
+                        
                         <li class="px-4 py-2">
                             <x-admin-nav-link href="{{ route('fdcashier-walkin') }}" :active="request()->routeIs('fdcashier-walkin')">
-                                {{ __('Walk In Queue') }}
+                                <i class="fas fa-user-friends mr-2"></i> {{ __('Walk In Queue') }}
                             </x-admin-nav-link>
                         </li>
-                        {{--  --}}
+                        
                         <li class="px-4 py-2">
                             <x-admin-nav-link href="{{ route('fdcashier-accounts') }}" :active="request()->routeIs('fdcashier-accounts')">
-                                {{ __('Accounts') }}
+                                <i class="fas fa-user-circle mr-2"></i> {{ __('Accounts') }}
                             </x-admin-nav-link>
                         </li>
-
-                        <!-- Windows Dropdown -->
-                        {{-- <li class="px-4 py-2" x-data="{ open: false }">
-                            <button @click="open = !open" class="w-full font-bold flex justify-between items-center text-gray-700 hover:bg-gray-100 rounded-md transition ease-in-out duration-150">
-                                <span>{{ __('Windows') }}</span>
-                                <svg :class="{'rotate-180': open}" class="w-5 h-5 transform transition-transform" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                            <div x-show="open" x-cloak class="ml-4 mt-2">
-                                <ul class="space-y-2">
-                                    <li>
-                                        <x-admin-nav-link href="{{ route('admin-windows') }}" :active="request()->routeIs('admin-windows')">
-                                            {{ __('Manage Windows') }}
-                                        </x-admin-nav-link>
-                                    </li>
-                                    <li>
-                                        <x-admin-nav-link href="{{ route('admin-add-windows') }}" :active="request()->routeIs('admin-add-windows')">
-                                            {{ __('Add Windows') }}
-                                        </x-admin-nav-link>
-                                    </li>
-                                </ul>
-                            </div>
-                        </li> --}}
-
-                        <!-- Accounts Dropdown -->
-                        {{-- <li class="px-4 py-2" x-data="{ open: false }">
-                            <button @click="open = !open" class="w-full font-bold flex justify-between items-center text-gray-700 hover:bg-gray-100 rounded-md transition ease-in-out duration-150">
-                                <span>{{ __('Accounts') }}</span>
-                                <svg :class="{'rotate-180': open}" class="w-5 h-5 transform transition-transform" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                            <div x-show="open" x-cloak class="ml-4 mt-2">
-                                <ul class="space-y-2">
-                                    <li>
-                                        <x-admin-nav-link href="{{ route('admin-create-user') }}" :active="request()->routeIs('admin-create-user')">
-                                            {{ __('Create User') }}
-                                        </x-admin-nav-link>
-                                    </li>
-                                    <li>
-                                        <x-admin-nav-link href="{{ route('admin-manage-user') }}" :active="request()->routeIs('admin-manage-user')">
-                                            {{ __('Manage User') }}
-                                        </x-admin-nav-link>
-                                    </li>
-                                </ul>
-                            </div>
-                        </li> --}}
-
-                        <!-- Services Dropdown -->
-                        {{-- <li class="px-4 py-2" x-data="{ open: false }">
-                            <button @click="open = !open" class="w-full font-bold flex justify-between items-center text-gray-700 hover:bg-gray-100 rounded-md transition ease-in-out duration-150">
-                                <span>{{ __('Services') }}</span>
-                                <svg :class="{'rotate-180': open}" class="w-5 h-5 transform transition-transform" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                            <div x-show="open" x-cloak class="ml-4 mt-2">
-                                <ul class="space-y-2">
-                                    <li>
-                                        <x-admin-nav-link href="{{ route('admin-view-services') }}" :active="request()->routeIs('admin-view-services')">
-                                            {{ __('View Services') }}
-                                        </x-admin-nav-link>
-                                    </li>
-                                    <li>
-                                        <x-admin-nav-link href="{{ route('admin-add-services') }}" :active="request()->routeIs('admin-add-services')">
-                                            {{ __('Add New Service') }}
-                                        </x-admin-nav-link>
-                                    </li>
-                                </ul>
-                            </div>
-                        </li> --}}
 
                         <li class="px-4 py-2">
                             <x-admin-nav-link href="{{ route('profile.show') }}" :active="request()->routeIs('profile.show')">
-                                {{ __('Profile') }}
+                                <i class="fas fa-user mr-2"></i> {{ __('Profile') }}
                             </x-admin-nav-link>
                         </li>
+                        
                         <li class="px-4 py-2">
                             <x-admin-nav-link href="{{ route('fdcashier-reports') }}" :active="request()->routeIs('fdcashier-reports')">
-                                {{ __('Reports') }}
+                                <i class="fas fa-file-alt mr-2"></i> {{ __('Reports') }}
                             </x-admin-nav-link>
                         </li>
+                        
                         <li class="px-4 py-2">
                             <x-admin-nav-link href="{{ route('admin-monitor') }}" :active="request()->routeIs('admin-monitor')">
-                                {{ __('Monitor') }}
+                                <i class="fas fa-desktop mr-2"></i> {{ __('Monitor') }}
                             </x-admin-nav-link>
                         </li>
-                        <li class="px-4 py-2">
-                            <x-admin-nav-link href="{{ route('admin-help') }}" :active="request()->routeIs('admin-help')">
-                                {{ __('Help') }}
-                            </x-admin-nav-link>
-                        </li>
+                        
                         <li class="px-4 py-2">
                             <form method="POST" action="{{ route('logout') }}" x-data>
                                 @csrf
                                 <button class="font-extrabold flex items-center text-gray-700 hover:bg-gray-100 rounded-md w-full transition ease-in-out duration-150">
-                                    Logout
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
                                 </button>
                             </form>
                         </li>
@@ -142,3 +68,5 @@
         @endauth
     </div>
 </div>
+
+<!-- Include Font Awesome -->
