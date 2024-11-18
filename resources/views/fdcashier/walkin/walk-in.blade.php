@@ -32,12 +32,22 @@
                         <select name="service_id" id="service_id" class="w-full border-gray-300 rounded-lg p-2 shadow-sm" required>
                             <option value="">Select a Service</option>
                             @foreach ($services as $service)
-                                <option value="{{ $service->id }}">{{ $service->name }}</option>
+                                <option value="{{ $service->id }}" data-initials="{{ strtoupper(substr($service->name, 0, 2)) }}">
+                                    {{ $service->name }}
+                                </option>
                             @endforeach
                         </select>
                         @error('service_id')
                             <span class="text-red-500 text-sm">{{ $message }}</span>
                         @enderror
+                    </div>
+
+                    <!-- Display Queue Number -->
+                    <div id="queue-number-container" class="mb-4 hidden">
+                        <label class="block text-gray-700 font-bold mb-2">Queue Number</label>
+                        <div id="queue-number" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600">
+                            <!-- Queue number will be displayed here -->
+                        </div>
                     </div>
 
                     <!-- Submit Button -->
@@ -56,11 +66,27 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             // Initialize Select2 for user selection
             $('#user_id').select2({
                 placeholder: 'Search for a user',
                 allowClear: true
+            });
+
+            // Calculate and display queue number when service is selected
+            $('#service_id').on('change', function () {
+                const selectedService = $(this).find('option:selected');
+                const serviceInitials = selectedService.data('initials');
+                const randomNumber = Math.floor(100 + Math.random() * 900); // Generate a random 3-digit number
+                
+                if (serviceInitials) {
+                    const queueNumber = `${serviceInitials}${randomNumber}`;
+                    $('#queue-number').text(queueNumber);
+                    $('#queue-number-container').removeClass('hidden');
+                } else {
+                    $('#queue-number').text('');
+                    $('#queue-number-container').addClass('hidden');
+                }
             });
         });
     </script>

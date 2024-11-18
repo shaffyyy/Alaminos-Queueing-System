@@ -9,11 +9,11 @@ use Carbon\Carbon;
 class Queue extends Component
 {
     public $queues;
-    public $verificationStatus = 'all';
-    public $newUnverifiedCount = 0;
-    public $search = '';
+    public $verificationStatus = 'all'; // Dynamic status filter
+    public $newUnverifiedCount = 0; // Unverified ticket count
+    public $search = ''; // Search filter
 
-    protected $listeners = ['refreshData' => '$refresh'];
+    protected $listeners = ['refreshData' => '$refresh', 'verifyTicket', 'undoVerifyTicket', 'cancelTicket'];
 
     public function mount()
     {
@@ -51,7 +51,7 @@ class Queue extends Component
             $ticket->save();
             $this->loadQueues();
             $this->countNewUnverified();
-            session()->flash('verification_message', 'Ticket has been verified successfully!');
+            $this->dispatch('statusMessage', ['message' => 'Ticket has been verified successfully!']);
         }
     }
 
@@ -64,7 +64,7 @@ class Queue extends Component
             $ticket->save();
             $this->loadQueues();
             $this->countNewUnverified();
-            session()->flash('verification_message', 'Ticket verification has been undone.');
+            $this->dispatch('statusMessage', ['message' => 'Ticket verification has been undone.']);
         }
     }
 
@@ -75,7 +75,7 @@ class Queue extends Component
             $ticket->status = 'cancelled';
             $ticket->save();
             $this->loadQueues();
-            session()->flash('verification_message', 'Ticket has been cancelled.');
+            $this->dispatch('statusMessage', ['message' => 'Ticket has been cancelled.']);
         }
     }
 

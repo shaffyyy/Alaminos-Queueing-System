@@ -79,6 +79,19 @@ class QueueHistory extends Component
         $this->closeFeedbackModal();
     }
 
+    public function deleteTicket($ticketId)
+    {
+        $ticket = Ticket::where('id', $ticketId)->where('user_id', Auth::id())->first();
+
+        if ($ticket) {
+            $ticket->delete();
+
+            session()->flash('message', 'Ticket has been deleted successfully!');
+        } else {
+            session()->flash('error', 'You are not authorized to delete this ticket.');
+        }
+    }
+
     public function render()
     {
         $tickets = Ticket::where('user_id', Auth::id())

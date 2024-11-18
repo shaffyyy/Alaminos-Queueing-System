@@ -1,13 +1,13 @@
 <div class="py-12" wire:poll.2s="loadQueues">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-
             <!-- Filter Form -->
             <div class="mb-4 flex justify-between items-center">
                 <!-- Search Input -->
                 <div class="flex items-center">
                     <label for="search" class="mr-2 font-medium">Search by Ticket ID:</label>
-                    <input type="text" wire:model.debounce.300ms="searchTerm" id="search" placeholder="Enter Ticket ID" class="border-gray-300 rounded-md shadow-sm">
+                    <input type="text" wire:model.debounce.300ms="search" id="search" placeholder="Enter Ticket ID"
+                        class="border-gray-300 rounded-md shadow-sm">
                 </div>
 
                 <!-- Verification Filter -->
@@ -51,18 +51,18 @@
                                     <td class="py-2 px-4 border">{{ ucfirst($queue->verify) }}</td>
                                     <td class="py-2 px-4 border">
                                         @if($queue->verify === 'verified')
-                                            <!-- Undo Verification Button -->
-                                            <button wire:click="$emit('confirmUndo', {{ $queue->id }})" class="bg-yellow-500 text-white py-1 px-3 rounded-lg hover:bg-yellow-600 transition duration-200">
+                                            <button wire:click="undoVerifyTicket({{ $queue->id }})"
+                                                class="bg-yellow-500 text-white py-1 px-3 rounded-lg hover:bg-yellow-600 transition duration-200">
                                                 Undo
                                             </button>
                                         @else
-                                            <!-- Verify Button -->
-                                            <button wire:click="$emit('confirmVerify', {{ $queue->id }})" class="bg-green-500 text-white py-1 px-3 rounded-lg hover:bg-green-600 transition duration-200">
+                                            <button wire:click="verifyTicket({{ $queue->id }})"
+                                                class="bg-green-500 text-white py-1 px-3 rounded-lg hover:bg-green-600 transition duration-200">
                                                 Verify
                                             </button>
                                         @endif
-                                        <!-- Cancel/Reject Button -->
-                                        <button wire:click="$emit('confirmCancel', {{ $queue->id }})" class="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-600 transition duration-200">
+                                        <button wire:click="cancelTicket({{ $queue->id }})"
+                                            class="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-600 transition duration-200">
                                             Cancel
                                         </button>
                                     </td>
@@ -75,66 +75,3 @@
         </div>
     </div>
 </div>
-
-<!-- SweetAlert2 Script -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    Livewire.on('confirmVerify', (ticketId) => {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'Do you want to verify this ticket?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, verify it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Livewire.emit('verifyTicket', ticketId);
-            }
-        });
-    });
-
-    Livewire.on('confirmUndo', (ticketId) => {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'Do you want to undo verification for this ticket?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, undo it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Livewire.emit('undoVerifyTicket', ticketId);
-            }
-        });
-    });
-
-    Livewire.on('confirmCancel', (ticketId) => {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'Do you want to cancel this ticket?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, cancel it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Livewire.emit('cancelTicket', ticketId);
-            }
-        });
-    });
-
-    Livewire.on('statusMessage', (message) => {
-        Swal.fire({
-            position: 'top-end',
-            icon: 'success',
-            title: message,
-            showConfirmButton: false,
-            timer: 1500,
-            toast: true
-        });
-    });
-</script>

@@ -1,21 +1,24 @@
 <?php
 
-namespace App\Livewire\Fdcashier\Queue;
+namespace App\Livewire\Admin\Queue;
 
 use Livewire\Component;
 use App\Models\Ticket;
+use Carbon\Carbon;
 
 class Queue extends Component
 {
     public $queues;
-    public $verificationStatus = 'all';
-    public $searchTerm = '';
+    public $verificationStatus = 'all'; // Dynamic status filter
+    public $newUnverifiedCount = 0; // Unverified ticket count
+    public $search = ''; // Search filter
 
-    protected $listeners = ['verifyTicket', 'undoVerifyTicket', 'cancelTicket'];
+    protected $listeners = ['refreshData' => '$refresh', 'verifyTicket', 'undoVerifyTicket', 'cancelTicket'];
 
     public function mount()
     {
         $this->loadQueues();
+        $this->countNewUnverified();
     }
 
     public function loadQueues()
@@ -24,12 +27,19 @@ class Queue extends Component
             ->when($this->verificationStatus !== 'all', function ($query) {
                 $query->where('verify', $this->verificationStatus);
             })
-            ->when($this->searchTerm, function ($query) {
-                $query->where('id', $this->searchTerm);
+            ->whereNotIn('status', ['completed', 'cancelled'])
+            ->when($this->search, function ($query) {
+                $query->where('queue_number', 'like', '%' . $this->search . '%');
             })
-            ->where('status', '!=', 'completed')
             ->orderBy('created_at', 'asc')
             ->get();
+    }
+
+    public function countNewUnverified()
+    {
+        $this->newUnverifiedCount = Ticket::where('verify', 'unverified')
+            ->whereNotIn('status', ['completed', 'cancelled'])
+            ->count();
     }
 
     public function verifyTicket($ticketId)
@@ -37,9 +47,11 @@ class Queue extends Component
         $ticket = Ticket::find($ticketId);
         if ($ticket) {
             $ticket->verify = 'verified';
+            $ticket->verified_at = Carbon::now();
             $ticket->save();
             $this->loadQueues();
-            $this->dispatchBrowserEvent('statusMessage', 'Ticket verified successfully!');
+            $this->countNewUnverified();
+            $this->dispatchBrowserEvent('statusMessage', 'Ticket has been verified successfully!');
         }
     }
 
@@ -48,9 +60,11 @@ class Queue extends Component
         $ticket = Ticket::find($ticketId);
         if ($ticket) {
             $ticket->verify = 'unverified';
+            $ticket->verified_at = null;
             $ticket->save();
             $this->loadQueues();
-            $this->dispatchBrowserEvent('statusMessage', 'Ticket verification undone.');
+            $this->countNewUnverified();
+            $this->dispatchBrowserEvent('statusMessage', 'Ticket verification has been undone.');
         }
     }
 
@@ -61,12 +75,13 @@ class Queue extends Component
             $ticket->status = 'cancelled';
             $ticket->save();
             $this->loadQueues();
-            $this->dispatchBrowserEvent('statusMessage', 'Ticket cancelled successfully!');
+            $this->dispatchBrowserEvent('statusMessage', 'Ticket has been cancelled.');
         }
     }
 
     public function render()
     {
-        return view('livewire.fdcashier.queue.queue');
+        $this->countNewUnverified();
+        return view('livewire.admin.queue.queue');
     }
 }
