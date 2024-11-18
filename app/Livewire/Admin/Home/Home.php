@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Home;
 use Livewire\Component;
 use App\Models\Ticket;
 use App\Models\Window;
+use App\Models\Feedback; // Import Feedback model
 use Carbon\Carbon;
 
 class Home extends Component
@@ -13,7 +14,7 @@ class Home extends Component
     public $pendingQueues;
     public $windows;
     public $monthlyData = [];
-    public $yearlyData = [];
+    public $feedbackData = []; // Replace yearly data with feedback data
 
     protected $listeners = ['refreshData' => '$refresh'];
 
@@ -38,11 +39,11 @@ class Home extends Component
             ->pluck('count', 'month')
             ->toArray();
 
-        // Compute Yearly Data
-        $this->yearlyData = Ticket::selectRaw('YEAR(created_at) as year, COUNT(*) as count')
-            ->groupBy('year')
-            ->orderBy('year')
-            ->pluck('count', 'year')
+        // Compute Feedback Data
+        $this->feedbackData = Feedback::selectRaw('rating, COUNT(*) as count')
+            ->groupBy('rating')
+            ->orderBy('rating')
+            ->pluck('count', 'rating')
             ->toArray();
     }
 
@@ -51,7 +52,7 @@ class Home extends Component
         return view('livewire.admin.home.home', [
             'windows' => $this->windows,
             'monthlyData' => $this->monthlyData,
-            'yearlyData' => $this->yearlyData,
+            'feedbackData' => $this->feedbackData,
         ]);
     }
 }

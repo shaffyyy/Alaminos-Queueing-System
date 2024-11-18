@@ -26,14 +26,40 @@
                 <!-- Statistics Section -->
                 <div class="statistics-section mb-6 border rounded p-4 shadow bg-gray-100">
                     <h2 class="mb-4 text-xl font-semibold">Statistics</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
+                        <!-- Monthly Overview -->
                         <div class="bg-white rounded p-4 shadow">
                             <h5 class="text-lg font-bold">Monthly Overview</h5>
                             <canvas id="monthlyChart"></canvas>
                         </div>
-                        <div class="bg-white rounded p-4 shadow">
-                            <h5 class="text-lg font-bold">Yearly Overview</h5>
-                            <canvas id="yearlyChart"></canvas>
+                        
+                        <!-- Feedback Overview -->
+                        <div class="bg-white rounded p-4 shadow mt-6">
+                            <h5 class="text-lg font-bold">Feedback Overview</h5>
+                            <div class="flex flex-wrap md:flex-nowrap items-center">
+                                <!-- Feedback Chart -->
+                                <div class="w-full md:w-1/2 flex justify-center items-center p-4">
+                                    <canvas id="feedbackChart" style="max-width: 300px; max-height: 300px;"></canvas>
+                                </div>
+                                
+                                <!-- Feedback Summary -->
+                                <div class="w-full md:w-1/2 text-gray-700 p-4">
+                                    <h6 class="font-bold text-lg">Feedback Summary</h6>
+                                    <p class="mt-2">
+                                        This chart provides a visual distribution of feedback ratings given by users. 
+                                        It categorizes feedback into star ratings, ranging from 1 to 5 stars. The data 
+                                        helps in identifying user satisfaction levels and areas for improvement.
+                                    </p>
+                                    <p class="mt-2">
+                                        <strong>Details:</strong>
+                                    </p>
+                                    <ul class="list-disc pl-5">
+                                        @foreach($feedbackData as $rating => $count)
+                                            <li>{{ $rating }} Star{{ $rating > 1 ? 's' : '' }}: {{ $count }} Feedback{{ $count > 1 ? 's' : '' }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -120,30 +146,31 @@
                 }
             });
 
-            // Yearly Data as Line Chart
-            var yearlyLabels = {!! json_encode(array_keys($yearlyData)) !!};
-            var yearlyValues = {!! json_encode(array_values($yearlyData)) !!};
+            // Feedback Data as Pie Chart
+            var feedbackLabels = {!! json_encode(array_keys($feedbackData)) !!};
+            var feedbackValues = {!! json_encode(array_values($feedbackData)) !!};
 
-            var ctxYearly = document.getElementById('yearlyChart').getContext('2d');
-            var yearlyChart = new Chart(ctxYearly, {
-                type: 'line',
+            var ctxFeedback = document.getElementById('feedbackChart').getContext('2d');
+            var feedbackChart = new Chart(ctxFeedback, {
+                type: 'pie',
                 data: {
-                    labels: yearlyLabels,
+                    labels: feedbackLabels.map(rating => `${rating} Stars`),
                     datasets: [{
-                        label: 'Yearly Tickets',
-                        data: yearlyValues,
-                        backgroundColor: 'rgba(54, 162, 235, 0.4)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 2,
-                        fill: true
+                        label: 'Feedback Distribution',
+                        data: feedbackValues,
+                        backgroundColor: [
+                            'rgba(255, 99, 132)',
+                            'rgba(54, 162, 235)',
+                            'rgba(255, 206, 86)',
+                            'rgba(75, 192, 192)',
+                            'rgba(153, 102, 255)'
+                        ],
+                        borderWidth: 1
                     }]
                 },
                 options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+                    responsive: true,
+                    maintainAspectRatio: false
                 }
             });
         });

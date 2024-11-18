@@ -11,6 +11,10 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+         <!-- Other meta tags -->
+        <link rel="icon" type="image/png" href="{{ asset('/assets/logo/alaminos-city.png') }}">
+        <link rel="apple-touch-icon" href="{{ asset('/assets/logo/alaminos-city.png') }}"> <!-- Optional for iOS -->
+
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
