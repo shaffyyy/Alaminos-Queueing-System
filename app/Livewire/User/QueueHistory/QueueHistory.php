@@ -79,6 +79,17 @@ class QueueHistory extends Component
         $this->closeFeedbackModal();
     }
 
+    public function hasFeedback($ticketId)
+    {
+        return Feedback::where('ticket_id', $ticketId)->exists();
+    }
+
+    public function getFeedbackRating($ticketId)
+    {
+        $feedback = Feedback::where('ticket_id', $ticketId)->first();
+        return $feedback ? $feedback->rating : null;
+    }
+
     public function deleteTicket($ticketId)
     {
         $ticket = Ticket::where('id', $ticketId)->where('user_id', Auth::id())->first();

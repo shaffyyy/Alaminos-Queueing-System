@@ -43,17 +43,29 @@
                                 </span>
                             </p>
                         </div>
-
+    
                         <!-- Actions -->
                         <div class="flex space-x-4">
-                            <!-- Feedback Button -->
                             @if($ticket->status === 'completed')
-                                <button wire:click="openFeedbackModal({{ $ticket->id }})"
-                                        class="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition duration-200">
-                                    Leave Feedback
-                                </button>
+                                @if($this->hasFeedback($ticket->id))
+                                    <!-- Display Stars -->
+                                    <div class="flex space-x-1">
+                                        @for($i = 1; $i <= $this->getFeedbackRating($ticket->id); $i++)
+                                            <span class="text-yellow-500 text-xl">&#9733;</span>
+                                        @endfor
+                                        @for($i = $this->getFeedbackRating($ticket->id) + 1; $i <= 5; $i++)
+                                            <span class="text-gray-300 text-xl">&#9733;</span>
+                                        @endfor
+                                    </div>
+                                @else
+                                    <!-- Feedback Button -->
+                                    <button wire:click="openFeedbackModal({{ $ticket->id }})"
+                                            class="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition duration-200">
+                                        Leave Feedback
+                                    </button>
+                                @endif
                             @endif
-
+    
                             <!-- Delete Button -->
                             <button wire:click="deleteTicket({{ $ticket->id }})"
                                     onclick="return confirm('Are you sure you want to delete this ticket?')"
@@ -66,6 +78,7 @@
             @endforeach
         @endif
     </div>
+    
 
     <!-- Feedback Modal -->
     @if($showFeedbackModal)
