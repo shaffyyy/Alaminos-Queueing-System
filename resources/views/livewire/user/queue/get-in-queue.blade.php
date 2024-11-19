@@ -46,7 +46,6 @@
                 </div>
             @endif
 
-            <!-- Cancel Queue Button -->
             <button wire:click="cancelTicket({{ $currentTicketId }})"
                     onclick="return confirm('Are you sure you want to cancel this ticket?')"
                     class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition duration-200">
@@ -57,10 +56,31 @@
         @endif
     </div>
 
-    @if ($pendingVerificationMessage && $queueNumber && $currentTicketId)
-        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mt-6 rounded-lg">
-            <p class="font-bold">Proceed to the Front Desk</p>
-            <p>Your ticket is pending verification. Please proceed to the front desk to verify your ticket.</p>
-        </div>
-    @endif
+    <!-- Queue Monitoring Section -->
+    <div wire:poll.5s="loadQueueMonitoring" class="mt-12 bg-gray-900 text-white p-10 rounded-lg shadow-lg flex items-center justify-center">
+        <h2 class="text-3xl font-bold text-center mb-8">Queue Monitoring</h2>
+        @if(empty($queues))
+            <div class="text-center text-gray-400">
+                <p>No active queues at the moment.</p>
+            </div>
+        @else
+            <div class="bg-gray-800 p-12 rounded-lg shadow-lg text-center w-full max-w-4xl">
+                <h3 class="text-4xl font-bold text-white mb-6">{{ $queues[0]['queue_number'] }}</h3>
+                <p class="text-2xl text-gray-300 mb-4">
+                    <strong>Service:</strong> {{ $queues[0]['service'] }}
+                </p>
+                <p class="text-2xl">
+                    <strong>Status:</strong> 
+                    <span class="{{ $queues[0]['status'] === 'In-service' ? 'text-green-400' : 'text-yellow-400' }}">
+                        {{ ucfirst($queues[0]['status']) }}
+                    </span>
+                </p>
+                @if($queues[0]['assigned_window'])
+                    <p class="text-xl text-blue-400 mt-6">
+                        Proceed to: <strong>{{ $queues[0]['assigned_window'] }}</strong>
+                    </p>
+                @endif
+            </div>
+        @endif
+    </div>
 </div>

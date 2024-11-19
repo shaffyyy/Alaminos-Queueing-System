@@ -15,15 +15,19 @@ class GetInQueue extends Component
     public $pendingVerificationMessage = false;
     public $assignedWindow;
     public $currentTicketId;
+    public $queuePosition;
+    public $queues = []; // For monitoring
 
     public function mount()
     {
         $this->loadQueueStatus();
+        $this->loadQueueMonitoring();
     }
 
     public function loadQueueStatus()
     {
         $ticket = Ticket::where('user_id', Auth::id())
+            ->whereNotIn('status', ['cancelled']) // Exclude cancelled tickets
             ->whereIn('status', ['waiting', 'in-service'])
             ->latest()
             ->first();
@@ -36,7 +40,37 @@ class GetInQueue extends Component
             if ($ticket->verify === 'verified' && $ticket->window) {
                 $this->assignedWindow = $ticket->window->name ?? 'N/A';
             }
+
+            // Calculate queue position
+            $this->queuePosition = Ticket::where('service_id', $ticket->service_id)
+                ->where('status', 'waiting')
+                ->where('created_at', '<=', $ticket->created_at)
+                ->count();
+        } else {
+            $this->queueNumber = null;
+            $this->pendingVerificationMessage = false;
+            $this->assignedWindow = null;
+            $this->currentTicketId = null;
         }
+    }
+
+    public function loadQueueMonitoring()
+    {
+        $this->queues = Ticket::with(['service', 'window'])
+            ->where('user_id', Auth::id()) // Only show tickets related to the authenticated user
+            ->where('verify', 'verified') // Only include verified tickets
+            ->whereNotIn('status', ['cancelled', 'completed']) // Exclude cancelled and completed tickets
+            ->orderBy('created_at', 'asc')
+            ->get()
+            ->map(function ($ticket) {
+                return [
+                    'queue_number' => $ticket->queue_number,
+                    'service' => $ticket->service->name ?? 'N/A',
+                    'status' => ucfirst($ticket->status),
+                    'assigned_window' => $ticket->window->name ?? null,
+                ];
+            })
+            ->toArray();
     }
 
     public function joinQueue()
@@ -50,10 +84,8 @@ class GetInQueue extends Component
             'service' => 'required|exists:services,id',
         ]);
 
-        // Check if the user is PWD (usertype == 4) to assign priority
         $isPriority = Auth::user()->usertype == 4;
 
-        // Find the available window for the selected service
         $availableWindow = Window::where('status', 'active')
             ->whereHas('services', function ($query) {
                 $query->where('services.id', $this->service);
@@ -64,14 +96,13 @@ class GetInQueue extends Component
             ->withCount(['tickets as regular_ticket_count' => function ($query) {
                 $query->where('priority', false)->whereIn('status', ['waiting', 'in-service']);
             }])
-            ->orderBy($isPriority ? 'priority_ticket_count' : 'regular_ticket_count') // Prioritize windows with fewer priority tickets for PWD users
+            ->orderBy($isPriority ? 'priority_ticket_count' : 'regular_ticket_count')
             ->first();
 
         if ($availableWindow) {
             $serviceName = Service::find($this->service)->name;
             $initials = strtoupper(substr($serviceName, 0, 2));
 
-            // Create a ticket
             $ticket = Ticket::create([
                 'user_id' => Auth::id(),
                 'service_id' => $this->service,
@@ -81,7 +112,6 @@ class GetInQueue extends Component
                 'priority' => $isPriority,
             ]);
 
-            // Generate the queue number
             $queueNumber = $initials . str_pad($ticket->id, 3, '0', STR_PAD_LEFT);
             $ticket->queue_number = $queueNumber;
             $ticket->save();
@@ -97,7 +127,6 @@ class GetInQueue extends Component
             session()->flash('error', 'No available windows for the selected service at the moment.');
         }
     }
-
 
     public function cancelTicket($ticketId)
     {
