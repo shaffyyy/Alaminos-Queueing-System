@@ -42,9 +42,9 @@ class Queue extends Component
             ->count();
     }
 
-    public function verifyTicket($ticketId)
+    public function verifyTicket($queueNumber)
     {
-        $ticket = Ticket::find($ticketId);
+        $ticket = Ticket::where('queue_number', $queueNumber)->first();
         if ($ticket) {
             $ticket->verify = 'verified';
             $ticket->verified_at = Carbon::now();
@@ -55,9 +55,9 @@ class Queue extends Component
         }
     }
 
-    public function undoVerifyTicket($ticketId)
+    public function undoVerifyTicket($queueNumber)
     {
-        $ticket = Ticket::find($ticketId);
+        $ticket = Ticket::where('queue_number', $queueNumber)->first();
         if ($ticket) {
             $ticket->verify = 'unverified';
             $ticket->verified_at = null;
@@ -68,9 +68,9 @@ class Queue extends Component
         }
     }
 
-    public function cancelTicket($ticketId)
+    public function cancelTicket($queueNumber)
     {
-        $ticket = Ticket::find($ticketId);
+        $ticket = Ticket::where('queue_number', $queueNumber)->first();
         if ($ticket) {
             $ticket->status = 'cancelled';
             $ticket->save();
