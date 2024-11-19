@@ -57,15 +57,16 @@
     </div>
 
     <!-- Queue Monitoring Section -->
-    <div wire:poll.5s="loadQueueMonitoring" class="mt-12 bg-gray-900 text-white p-10 rounded-lg shadow-lg flex items-center justify-center">
+    <div wire:poll.5s="loadQueueMonitoring" class="mt-12 bg-gray-900 text-white p-10 rounded-lg shadow-lg flex flex-col items-center">
         <h2 class="text-3xl font-bold text-center mb-8">Queue Monitoring</h2>
         @if(empty($queues))
             <div class="text-center text-gray-400">
                 <p>No active queues at the moment.</p>
             </div>
         @else
-            <div class="bg-gray-800 p-12 rounded-lg shadow-lg text-center w-full max-w-4xl">
-                <h3 class="text-4xl font-bold text-white mb-6">{{ $queues[0]['queue_number'] }}</h3>
+            <!-- Highlight the current user's ticket -->
+            <div class="bg-gray-800 p-6 rounded-lg shadow-lg text-center w-full max-w-4xl mb-6">
+                <h3 class="text-4xl font-bold text-white mb-4">{{ $queues[0]['queue_number'] }}</h3>
                 <p class="text-2xl text-gray-300 mb-4">
                     <strong>Service:</strong> {{ $queues[0]['service'] }}
                 </p>
@@ -75,12 +76,25 @@
                         {{ ucfirst($queues[0]['status']) }}
                     </span>
                 </p>
-                @if($queues[0]['assigned_window'])
-                    <p class="text-xl text-blue-400 mt-6">
-                        Proceed to: <strong>{{ $queues[0]['assigned_window'] }}</strong>
-                    </p>
-                @endif
+            </div>
+    
+            <!-- Display other queue numbers in the same window -->
+            <div class="bg-gray-700 p-6 rounded-lg shadow-lg w-full max-w-4xl">
+                <h4 class="text-2xl font-bold text-white mb-4">Other Queues in Your Window</h4>
+                <ul class="space-y-2">
+                    @foreach($queues as $index => $queue)
+                        @if($index > 0) <!-- Skip the current user's ticket -->
+                            <li class="bg-gray-600 text-white p-3 rounded-lg">
+                                <strong>Queue Number:</strong> {{ $queue['queue_number'] }}
+                                <span class="ml-4 text-sm text-gray-300">(Status: {{ $queue['status'] }})</span>
+                            </li>
+                        @endif
+                    @endforeach
+                </ul>
             </div>
         @endif
     </div>
+    
+
+    
 </div>

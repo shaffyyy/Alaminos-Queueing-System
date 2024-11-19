@@ -56,22 +56,35 @@ class GetInQueue extends Component
 
     public function loadQueueMonitoring()
     {
-        $this->queues = Ticket::with(['service', 'window'])
-            ->where('user_id', Auth::id()) // Only show tickets related to the authenticated user
-            ->where('verify', 'verified') // Only include verified tickets
-            ->whereNotIn('status', ['cancelled', 'completed']) // Exclude cancelled and completed tickets
-            ->orderBy('created_at', 'asc')
-            ->get()
-            ->map(function ($ticket) {
-                return [
-                    'queue_number' => $ticket->queue_number,
-                    'service' => $ticket->service->name ?? 'N/A',
-                    'status' => ucfirst($ticket->status),
-                    'assigned_window' => $ticket->window->name ?? null,
-                ];
-            })
-            ->toArray();
+        // Fetch the authenticated user's current ticket
+        $currentTicket = Ticket::with(['service', 'window'])
+            ->where('user_id', Auth::id())
+            ->where('verify', 'verified')
+            ->whereNotIn('status', ['cancelled', 'completed'])
+            ->latest()
+            ->first();
+    
+        // If the user has a ticket, fetch other tickets queued in the same window
+        if ($currentTicket && $currentTicket->window) {
+            $this->queues = Ticket::with(['service'])
+                ->where('window_id', $currentTicket->window->id) // Same window
+                ->whereNotIn('status', ['cancelled', 'completed']) // Exclude cancelled and completed
+                ->orderBy('created_at', 'asc') // Order by time of queue
+                ->get()
+                ->map(function ($ticket) {
+                    return [
+                        'queue_number' => $ticket->queue_number,
+                        'service' => $ticket->service->name ?? 'N/A',
+                        'status' => ucfirst($ticket->status),
+                    ];
+                })
+                ->toArray();
+        } else {
+            // If no ticket, clear the queues
+            $this->queues = [];
+        }
     }
+    
 
     public function joinQueue()
     {
