@@ -29,15 +29,19 @@
                                         <td class="py-3 px-4 border text-gray-600">{{ ucfirst($queue->status) }}</td>
                                         <td class="py-3 px-4 border">
                                             @if($queue->status === 'waiting')
-                                                <button wire:click="startService({{ $queue->id }})" class="bg-blue-500 text-white py-1 px-3 rounded-lg hover:bg-blue-600 transition duration-200">
+                                                <button wire:click="startService({{ $queue->id }})"
+                                                    onclick="announceQueueNumber('{{ $queue->queue_number }}')"
+                                                    class="bg-blue-500 text-white py-1 px-3 rounded-lg hover:bg-blue-600 transition duration-200">
                                                     Start Service
                                                 </button>
                                             @elseif($queue->status === 'in-service')
-                                                <button wire:click="completeService({{ $queue->id }})" class="bg-green-500 text-white py-1 px-3 rounded-lg hover:bg-green-600 transition duration-200">
+                                                <button wire:click="completeService({{ $queue->id }})"
+                                                    class="bg-green-500 text-white py-1 px-3 rounded-lg hover:bg-green-600 transition duration-200">
                                                     Complete Service
                                                 </button>
                                             @endif
-                                            <button wire:click="cancelQueue({{ $queue->id }})" class="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-600 transition duration-200">
+                                            <button wire:click="cancelQueue({{ $queue->id }})"
+                                                class="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-600 transition duration-200">
                                                 Cancel
                                             </button>
                                         </td>
@@ -54,4 +58,19 @@
             @endif
         </div>
     </div>
+
+    <!-- JavaScript for Voice Announcement -->
+    <script>
+        function announceQueueNumber(queueNumber) {
+            if ('speechSynthesis' in window) {
+                const message = new SpeechSynthesisUtterance(`Now serving queue number ${queueNumber}`);
+                message.lang = 'en-US';
+                message.rate = 1;
+                message.pitch = 1;
+                window.speechSynthesis.speak(message);
+            } else {
+                alert('Sorry, your browser does not support voice announcements.');
+            }
+        }
+    </script>
 </div>

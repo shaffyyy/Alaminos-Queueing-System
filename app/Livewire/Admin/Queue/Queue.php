@@ -31,7 +31,7 @@ class Queue extends Component
             ->when($this->search, function ($query) {
                 $query->where('queue_number', 'like', '%' . $this->search . '%');
             })
-            ->orderBy('created_at', 'asc')
+            ->orderBy('created_at', 'desc') // Sort by newest first
             ->get();
     }
 

@@ -33,7 +33,7 @@ class Queues extends Component
                 ->where('window_id', $this->assignedWindow->id) // Filter by assigned window
                 ->where('verify', 'verified') // Only include verified tickets
                 ->whereNotIn('status', ['completed', 'cancelled']) // Exclude completed and cancelled tickets
-                ->orderBy('created_at', 'asc')
+                ->orderBy('created_at', 'asc') // Order by oldest first
                 ->get();
         } else {
             $this->queues = collect(); // Empty collection if no window assigned
@@ -79,7 +79,4 @@ class Queues extends Component
             'assignedWindow' => $this->assignedWindow,
         ]);
     }
-
-
-
 }

@@ -45,8 +45,22 @@
                     <!-- Display Queue Number -->
                     <div id="queue-number-container" class="mb-4 hidden">
                         <label class="block text-gray-700 font-bold mb-2">Queue Number</label>
-                        <div id="queue-number" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600">
+                        <div id="queue-number" class="w-full max-w-md mx-auto p-4 border border-gray-300 rounded-lg bg-gray-50 text-gray-800 text-center relative shadow-md receipt">
+                            <!-- Logo -->
+                            <div class="flex justify-center">
+                                <x-application-mark class="block h-9 w-auto mb-2" />
+                            </div>
+                            
                             <!-- Queue number will be displayed here -->
+                            <span class="block font-mono text-2xl font-bold text-gray-700" id="queue-number-value"></span>
+                        
+                            <!-- Receipt Border -->
+                            <div class="absolute inset-0 border-dashed border-gray-300" style="border-width: 2px; pointer-events: none;"></div>
+                        </div>
+                    
+                        <!-- Print Button -->
+                        <div class="flex justify-center mt-4">
+                            <button id="print-ticket" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-200">Print Ticket</button>
                         </div>
                     </div>
 
@@ -81,13 +95,57 @@
                 
                 if (serviceInitials) {
                     const queueNumber = `${serviceInitials}${randomNumber}`;
-                    $('#queue-number').text(queueNumber);
+                    $('#queue-number-value').text(queueNumber);
                     $('#queue-number-container').removeClass('hidden');
                 } else {
-                    $('#queue-number').text('');
+                    $('#queue-number-value').text('');
                     $('#queue-number-container').addClass('hidden');
                 }
             });
+
+            // Print ticket functionality
+            $('#print-ticket').on('click', function () {
+                const printContent = document.getElementById('queue-number').outerHTML;
+                const newWindow = window.open('', '_blank');
+                newWindow.document.open();
+                newWindow.document.write(`
+                    <html>
+                        <head>
+                            <title>Print Ticket</title>
+                            <style>
+                                body { font-family: 'Courier New', Courier, monospace; padding: 20px; text-align: center; }
+                                .receipt { margin: auto; max-width: 300px; padding: 20px; border: 1px solid #ccc; border-radius: 10px; }
+                                .receipt .block { margin: 0 auto; display: block; }
+                                .receipt #queue-number-value { font-size: 24px; font-weight: bold; margin-top: 10px; }
+                                .border-dashed { border: 2px dashed #ccc; pointer-events: none; margin-top: 10px; }
+                            </style>
+                        </head>
+                        <body onload="window.print(); window.close();">
+                            ${printContent}
+                        </body>
+                    </html>
+                `);
+                newWindow.document.close();
+            });
         });
     </script>
+
+    <style>
+        /* Receipt styling */
+        .receipt {
+            background-color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 16px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            max-width: 300px; /* Adjust width */
+        }
+
+        /* Center logo styling */
+        .receipt .block {
+            margin: 0 auto; /* Center the logo */
+            display: block;
+        }
+    </style>
 </x-app-layout>
