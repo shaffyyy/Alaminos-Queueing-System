@@ -156,6 +156,24 @@ class GetInQueue extends Component
         }
     }
 
+    public function startService($ticketId)
+{
+    $ticket = Ticket::find($ticketId);
+
+    if ($ticket && $ticket->status === 'waiting') {
+        $ticket->status = 'in-service';
+        $ticket->save();
+
+        // Emit an event to notify the front end of the status change
+        $this->emit('statusUpdated', $ticket->queue_number, $ticket->status);
+
+        session()->flash('message', 'The ticket has been moved to in-service.');
+    } else {
+        session()->flash('error', 'Invalid ticket or status.');
+    }
+}
+
+
     public function render()
     {
         $services = Service::all();

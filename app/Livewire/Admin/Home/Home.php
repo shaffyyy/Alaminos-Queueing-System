@@ -1,10 +1,11 @@
 <?php
+
 namespace App\Livewire\Admin\Home;
 
 use Livewire\Component;
 use App\Models\Ticket;
 use App\Models\Window;
-use App\Models\Feedback; // Import Feedback model
+use App\Models\Feedback;
 use Carbon\Carbon;
 
 class Home extends Component
@@ -14,7 +15,8 @@ class Home extends Component
     public $pendingQueues;
     public $windows;
     public $monthlyData = [];
-    public $feedbackData = []; // Replace yearly data with feedback data
+    public $feedbackData = [];
+    public $averageFeedback = 0;
 
     protected $listeners = ['refreshData' => '$refresh'];
 
@@ -29,7 +31,6 @@ class Home extends Component
         $this->activeQueues = Ticket::where('status', 'in-service')->count();
         $this->pendingQueues = Ticket::where('status', 'waiting')->count();
 
-        // Fetch all windows with their services relationship
         $this->windows = Window::with('services')->get();
 
         // Compute Monthly Data
@@ -40,11 +41,17 @@ class Home extends Component
             ->toArray();
 
         // Compute Feedback Data
-        $this->feedbackData = Feedback::selectRaw('rating, COUNT(*) as count')
+        $feedbackCounts = Feedback::selectRaw('rating, COUNT(*) as count')
             ->groupBy('rating')
             ->orderBy('rating')
             ->pluck('count', 'rating')
             ->toArray();
+
+        $totalFeedback = array_sum($feedbackCounts);
+        $totalStars = array_sum(array_map(fn($rating, $count) => $rating * $count, array_keys($feedbackCounts), $feedbackCounts));
+
+        $this->feedbackData = $feedbackCounts;
+        $this->averageFeedback = $totalFeedback ? round($totalStars / $totalFeedback, 2) : 0;
     }
 
     public function render()
@@ -53,6 +60,7 @@ class Home extends Component
             'windows' => $this->windows,
             'monthlyData' => $this->monthlyData,
             'feedbackData' => $this->feedbackData,
+            'averageFeedback' => $this->averageFeedback,
         ]);
     }
 }

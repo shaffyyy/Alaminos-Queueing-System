@@ -94,7 +94,17 @@
             </div>
         @endif
     </div>
-    
-
-    
 </div>
+
+<script>
+    document.addEventListener('livewire:load', function () {
+        Livewire.on('statusUpdated', (queueNumber, status) => {
+            if (status === 'In-service') {
+                // Use Web Speech API to announce the queue number
+                const msg = new SpeechSynthesisUtterance(`Now serving queue number ${queueNumber}`);
+                msg.lang = 'en-US';
+                window.speechSynthesis.speak(msg);
+            }
+        });
+    });
+</script>

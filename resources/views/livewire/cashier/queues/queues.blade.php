@@ -28,6 +28,7 @@
                                         <td class="py-3 px-4 border text-gray-600">{{ $queue->service->name ?? 'N/A' }}</td>
                                         <td class="py-3 px-4 border text-gray-600">{{ ucfirst($queue->status) }}</td>
                                         <td class="py-3 px-4 border">
+                                            <!-- Notify Button -->
                                             <button onclick="announceQueueNumber('{{ $queue->queue_number }}')"
                                                 class="bg-yellow-500 text-white py-1 px-3 rounded-lg hover:bg-yellow-600 transition duration-200">
                                                 Notify
@@ -49,6 +50,7 @@
                                                 Cancel
                                             </button>
                                         </td>
+                                        
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -95,13 +97,14 @@
         function announceQueueNumber(queueNumber) {
             if ('speechSynthesis' in window) {
                 const message = new SpeechSynthesisUtterance(`Now serving queue number ${queueNumber}`);
-                message.lang = 'en-US';
-                message.rate = 1;
-                message.pitch = 1;
+                message.lang = 'en-US'; // You can adjust this for different languages
+                message.rate = 1; // Speed of the voice
+                message.pitch = 1; // Pitch of the voice
                 window.speechSynthesis.speak(message);
             } else {
                 alert('Sorry, your browser does not support voice announcements.');
             }
         }
     </script>
+    
 </div>

@@ -1,7 +1,6 @@
 <div class="">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden sm:rounded-lg">
-            <!-- Main Content -->
             <div class="main-content container mx-auto px-5 py-3">
                 <!-- Dashboard Overview -->
                 <div class="overview-section mb-6 border rounded p-4 shadow bg-gray-100">
@@ -21,7 +20,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- End Dashboard Overview -->
 
                 <!-- Statistics Section -->
                 <div class="statistics-section mb-6 border rounded p-4 shadow bg-gray-100">
@@ -32,38 +30,32 @@
                             <h5 class="text-lg font-bold">Monthly Overview</h5>
                             <canvas id="monthlyChart"></canvas>
                         </div>
-                        
+
                         <!-- Feedback Overview -->
                         <div class="bg-white rounded p-4 shadow mt-6">
                             <h5 class="text-lg font-bold">Feedback Overview</h5>
                             <div class="flex flex-wrap md:flex-nowrap items-center">
+                                <!-- Average Feedback -->
+                                <div class="w-full md:w-1/2 flex justify-center items-center p-4">
+                                    <div class="text-center">
+                                        <h6 class="font-bold text-lg">Average Feedback</h6>
+                                        <p class="mt-2 text-4xl font-extrabold text-blue-600">
+                                            {{ $averageFeedback }} / 5
+                                        </p>
+                                        <p class="mt-2 text-sm text-gray-500">
+                                            Based on {{ array_sum($feedbackData) }} feedback entries.
+                                        </p>
+                                    </div>
+                                </div>
+
                                 <!-- Feedback Chart -->
                                 <div class="w-full md:w-1/2 flex justify-center items-center p-4">
                                     <canvas id="feedbackChart" style="max-width: 300px; max-height: 300px;"></canvas>
-                                </div>
-                                
-                                <!-- Feedback Summary -->
-                                <div class="w-full md:w-1/2 text-gray-700 p-4">
-                                    <h6 class="font-bold text-lg">Feedback Summary</h6>
-                                    <p class="mt-2">
-                                        This chart provides a visual distribution of feedback ratings given by users. 
-                                        It categorizes feedback into star ratings, ranging from 1 to 5 stars. The data 
-                                        helps in identifying user satisfaction levels and areas for improvement.
-                                    </p>
-                                    <p class="mt-2">
-                                        <strong>Details:</strong>
-                                    </p>
-                                    <ul class="list-disc pl-5">
-                                        @foreach($feedbackData as $rating => $count)
-                                            <li>{{ $rating }} Star{{ $rating > 1 ? 's' : '' }}: {{ $count }} Feedback{{ $count > 1 ? 's' : '' }}</li>
-                                        @endforeach
-                                    </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- End Statistics Section -->
 
                 <!-- Table of Windows -->
                 <div class="recent-activities-section border rounded p-4 shadow bg-gray-100">
@@ -104,9 +96,7 @@
                         </table>
                     </div>
                 </div>
-                <!-- End Table of Windows -->
             </div>
-            <!-- End Main Content -->
         </div>
     </div>
 
@@ -115,11 +105,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Monthly Data as Bar Chart
-            var monthlyLabels = {!! json_encode(array_keys($monthlyData)) !!};
-            var monthlyValues = {!! json_encode(array_values($monthlyData)) !!};
+            const monthlyLabels = {!! json_encode(array_keys($monthlyData)) !!};
+            const monthlyValues = {!! json_encode(array_values($monthlyData)) !!};
 
-            var ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
-            var monthlyChart = new Chart(ctxMonthly, {
+            const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
+            new Chart(ctxMonthly, {
                 type: 'bar',
                 data: {
                     labels: monthlyLabels.map(month => {
@@ -127,7 +117,7 @@
                             'January', 'February', 'March', 'April', 'May', 'June',
                             'July', 'August', 'September', 'October', 'November', 'December'
                         ];
-                        return monthNames[month - 1]; // Convert month number to name
+                        return monthNames[month - 1];
                     }),
                     datasets: [{
                         label: 'Monthly Tickets',
@@ -147,11 +137,11 @@
             });
 
             // Feedback Data as Pie Chart
-            var feedbackLabels = {!! json_encode(array_keys($feedbackData)) !!};
-            var feedbackValues = {!! json_encode(array_values($feedbackData)) !!};
+            const feedbackLabels = {!! json_encode(array_keys($feedbackData)) !!};
+            const feedbackValues = {!! json_encode(array_values($feedbackData)) !!};
 
-            var ctxFeedback = document.getElementById('feedbackChart').getContext('2d');
-            var feedbackChart = new Chart(ctxFeedback, {
+            const ctxFeedback = document.getElementById('feedbackChart').getContext('2d');
+            new Chart(ctxFeedback, {
                 type: 'pie',
                 data: {
                     labels: feedbackLabels.map(rating => `${rating} Stars`),
@@ -159,11 +149,11 @@
                         label: 'Feedback Distribution',
                         data: feedbackValues,
                         backgroundColor: [
-                            'rgba(255, 99, 132)',
-                            'rgba(54, 162, 235)',
-                            'rgba(255, 206, 86)',
-                            'rgba(75, 192, 192)',
-                            'rgba(153, 102, 255)'
+                            'rgba(255, 99, 132, 0.6)',
+                            'rgba(54, 162, 235, 0.6)',
+                            'rgba(255, 206, 86, 0.6)',
+                            'rgba(75, 192, 192, 0.6)',
+                            'rgba(153, 102, 255, 0.6)'
                         ],
                         borderWidth: 1
                     }]

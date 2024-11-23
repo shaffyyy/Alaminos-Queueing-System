@@ -167,6 +167,9 @@ Route::get('/cashier/queue', [CashierController::class, 'showQueue'])->name('cas
 // cashier reports links
 Route::get('/cashier/reports', [CashierController::class, 'showReports'])->name('cashier-reports');
 
+Route::get('/cashier/reports/pdf', [CashierController::class, 'exportToPDF'])->name('cashier-reports-pdf');
+
+
 // cashier reports links
 Route::get('/cashier/reports', [CashierController::class, 'showReports'])->name('cashier-reports');
 

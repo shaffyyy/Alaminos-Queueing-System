@@ -26,6 +26,14 @@
                             </x-admin-nav-link>
                         </li>
 
+                        <!-- Reports Link -->
+                        <li class="px-4 py-2 flex items-center">
+                            <i class="fas fa-chart-bar text-gray-700 mr-3"></i>
+                            <x-admin-nav-link href="{{ route('cashier-reports') }}" :active="request()->routeIs('cashier-reports')">
+                                {{ __('Reports') }}
+                            </x-admin-nav-link>
+                        </li>
+
                         <!-- Profile Link -->
                         <li class="px-4 py-2 flex items-center">
                             <i class="fas fa-user text-gray-700 mr-3"></i>
