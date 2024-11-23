@@ -28,6 +28,10 @@
                                         <td class="py-3 px-4 border text-gray-600">{{ $queue->service->name ?? 'N/A' }}</td>
                                         <td class="py-3 px-4 border text-gray-600">{{ ucfirst($queue->status) }}</td>
                                         <td class="py-3 px-4 border">
+                                            <button onclick="announceQueueNumber('{{ $queue->queue_number }}')"
+                                                class="bg-yellow-500 text-white py-1 px-3 rounded-lg hover:bg-yellow-600 transition duration-200">
+                                                Notify
+                                            </button>
                                             @if($queue->status === 'waiting')
                                                 <button wire:click="startService({{ $queue->id }})"
                                                     onclick="announceQueueNumber('{{ $queue->queue_number }}')"
@@ -35,7 +39,7 @@
                                                     Start Service
                                                 </button>
                                             @elseif($queue->status === 'in-service')
-                                                <button wire:click="completeService({{ $queue->id }})"
+                                                <button wire:click="openOrModal({{ $queue->id }})"
                                                     class="bg-green-500 text-white py-1 px-3 rounded-lg hover:bg-green-600 transition duration-200">
                                                     Complete Service
                                                 </button>
@@ -58,6 +62,33 @@
             @endif
         </div>
     </div>
+
+    <!-- OR Number Modal -->
+    @if($showOrModal)
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div class="bg-white rounded-lg p-6 w-96">
+                <h3 class="text-xl font-bold mb-4 text-gray-700">Enter OR Number</h3>
+                <form wire:submit.prevent="submitOrNumber">
+                    <div class="mb-4">
+                        <label for="or_number" class="block text-gray-600 font-medium mb-2">OR Number</label>
+                        <input type="text" id="or_number" wire:model="orNumber"
+                            class="w-full border border-gray-300 rounded-lg p-2">
+                        @error('orNumber') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="flex justify-end space-x-2">
+                        <button type="button" wire:click="closeOrModal"
+                            class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition duration-200">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200">
+                            Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 
     <!-- JavaScript for Voice Announcement -->
     <script>

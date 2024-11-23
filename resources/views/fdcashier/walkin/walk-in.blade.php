@@ -1,11 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
-        <div>
-            <h1 class="font-semibold text-xl text-gray-800 leading-tight">
-                Walk-in Form
-            </h1>
-        </div>
+        <h1 class="font-semibold text-xl text-gray-800 leading-tight">
+            Walk-in Form
+        </h1>
     </x-slot>
+
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-gray-100 overflow-hidden shadow-xl sm:rounded-lg p-6">
@@ -21,9 +20,6 @@
                                 <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->usertype == 4 ? 'PWD' : 'User' }})</option>
                             @endforeach
                         </select>
-                        @error('user_id')
-                            <span class="text-red-500 text-sm">{{ $message }}</span>
-                        @enderror
                     </div>
 
                     <!-- Service Selection -->
@@ -32,73 +28,78 @@
                         <select name="service_id" id="service_id" class="w-full border-gray-300 rounded-lg p-2 shadow-sm" required>
                             <option value="">Select a Service</option>
                             @foreach ($services as $service)
-                                <option value="{{ $service->id }}" data-initials="{{ strtoupper(substr($service->name, 0, 2)) }}">
-                                    {{ $service->name }}
-                                </option>
+                                <option value="{{ $service->id }}">{{ $service->name }}</option>
                             @endforeach
                         </select>
-                        @error('service_id')
-                            <span class="text-red-500 text-sm">{{ $message }}</span>
-                        @enderror
                     </div>
 
-                    <!-- Display Queue Number -->
+                    <!-- Priority Checkbox -->
+                    <div class="mb-4">
+                        <label for="priority" class="block text-gray-700 font-bold mb-2">
+                            <input type="checkbox" name="priority" id="priority" class="mr-2">
+                            Mark as Priority Lane
+                        </label>
+                    </div>
+                    
+
+                    <!-- Queue Number -->
                     <div id="queue-number-container" class="mb-4 hidden">
                         <label class="block text-gray-700 font-bold mb-2">Queue Number</label>
-                        <div id="queue-number" class="w-full max-w-md mx-auto p-4 border border-gray-300 rounded-lg bg-gray-50 text-gray-800 text-center relative shadow-md receipt">
+                        <div id="queue-number" class="w-full max-w-md mx-auto p-4 border border-gray-300 rounded-lg bg-gray-50 text-center relative receipt">
                             <!-- Logo -->
-                            <div class="flex justify-center">
-                                <x-application-mark class="block h-9 w-auto mb-2" />
+                            <div class="flex justify-center mb-2">
+                                <x-application-mark class="block h-12 w-auto" />
                             </div>
-                            
-                            <!-- Queue number will be displayed here -->
-                            <span class="block font-mono text-2xl font-bold text-gray-700" id="queue-number-value"></span>
-                        
-                            <!-- Receipt Border -->
-                            <div class="absolute inset-0 border-dashed border-gray-300" style="border-width: 2px; pointer-events: none;"></div>
+
+                            <!-- Queue Number -->
+                            <span id="queue-number-value" class="font-mono text-2xl font-bold text-gray-700"></span>
                         </div>
-                    
+
                         <!-- Print Button -->
                         <div class="flex justify-center mt-4">
-                            <button id="print-ticket" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-200">Print Ticket</button>
+                            <button id="print-ticket" type="button" class="bg-green-500 text-white px-4 py-1 rounded-lg hover:bg-green-600 transition duration-200 text-sm">
+                                Print Ticket
+                            </button>
                         </div>
                     </div>
 
                     <!-- Submit Button -->
                     <div class="flex justify-end space-x-2">
-                        <a href="{{ route('fdcashier-walkin') }}" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition duration-200">Cancel</a>
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200">Assign Ticket</button>
+                        <a href="{{ route('fdcashier-walkin') }}" class="bg-gray-500 text-white px-4 py-2 rounded-lg">Cancel</a>
+                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Assign Ticket</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Include Select2 and jQuery -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- Include jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
         $(document).ready(function () {
-            // Initialize Select2 for user selection
-            $('#user_id').select2({
-                placeholder: 'Search for a user',
-                allowClear: true
-            });
-
-            // Calculate and display queue number when service is selected
             $('#service_id').on('change', function () {
-                const selectedService = $(this).find('option:selected');
-                const serviceInitials = selectedService.data('initials');
-                const randomNumber = Math.floor(100 + Math.random() * 900); // Generate a random 3-digit number
-                
-                if (serviceInitials) {
-                    const queueNumber = `${serviceInitials}${randomNumber}`;
-                    $('#queue-number-value').text(queueNumber);
-                    $('#queue-number-container').removeClass('hidden');
+                const serviceId = $(this).val();
+
+                if (serviceId) {
+                    $.ajax({
+                        url: "{{ route('fdcashier.get-next-queue-number') }}",
+                        method: "POST",
+                        data: {
+                            service_id: serviceId,
+                            _token: "{{ csrf_token() }}"
+                        },
+                        success: function (response) {
+                            if (response.queueNumber) {
+                                $('#queue-number-value').text(response.queueNumber);
+                                $('#queue-number-container').removeClass('hidden');
+                            }
+                        },
+                        error: function () {
+                            alert('Failed to fetch the queue number. Please try again.');
+                        }
+                    });
                 } else {
-                    $('#queue-number-value').text('');
                     $('#queue-number-container').addClass('hidden');
                 }
             });
@@ -110,19 +111,42 @@
                 newWindow.document.open();
                 newWindow.document.write(`
                     <html>
-                        <head>
-                            <title>Print Ticket</title>
-                            <style>
-                                body { font-family: 'Courier New', Courier, monospace; padding: 20px; text-align: center; }
-                                .receipt { margin: auto; max-width: 300px; padding: 20px; border: 1px solid #ccc; border-radius: 10px; }
-                                .receipt .block { margin: 0 auto; display: block; }
-                                .receipt #queue-number-value { font-size: 24px; font-weight: bold; margin-top: 10px; }
-                                .border-dashed { border: 2px dashed #ccc; pointer-events: none; margin-top: 10px; }
-                            </style>
-                        </head>
-                        <body onload="window.print(); window.close();">
-                            ${printContent}
-                        </body>
+                    <head>
+                        <title>Print Ticket</title>
+                        <style>
+                            body {
+                                font-family: 'Courier New', Courier, monospace;
+                                text-align: center;
+                                margin: 0;
+                                padding: 0;
+                            }
+                            .receipt {
+                                width: 300px;
+                                height: 150px;
+                                margin: auto;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+                                align-items: center;
+                                border: 1px solid #ccc;
+                                border-radius: 10px;
+                                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                                padding: 10px;
+                                background-color: #fff;
+                            }
+                            .receipt .block {
+                                margin-bottom: 10px;
+                            }
+                            .font-mono {
+                                font-size: 20px;
+                                font-weight: bold;
+                                margin-top: 5px;
+                            }
+                        </style>
+                    </head>
+                    <body onload="window.print(); window.close();">
+                        ${printContent}
+                    </body>
                     </html>
                 `);
                 newWindow.document.close();
@@ -139,12 +163,12 @@
             padding: 16px;
             border: 1px solid #ccc;
             border-radius: 10px;
-            max-width: 300px; /* Adjust width */
+            max-width: 300px;
         }
 
         /* Center logo styling */
         .receipt .block {
-            margin: 0 auto; /* Center the logo */
+            margin: 0 auto;
             display: block;
         }
     </style>

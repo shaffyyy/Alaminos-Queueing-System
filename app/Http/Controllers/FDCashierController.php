@@ -34,35 +34,46 @@ class FDCashierController extends Controller
 
 
     // todo Walk-in Management
-    public function walkIn()
-    {
-        // Fetch users with usertype 0 (User) and 4 (PWD)
-        $users = User::whereIn('usertype', [0, 4])->get();
-
-        // Fetch services dynamically
-        $services = Service::all();
-
-        return view('fdcashier.walkin.walk-in', compact('users', 'services'));
-    }
-
-
-    
-    public function createWalkIn()
-    {
-        return view('fdcashier.accounts.create-acc');
-    }
-
-    public function storeWalkIn(Request $request)
+     // Walk-in Form
+     public function walkIn()
+     {
+         $users = User::whereIn('usertype', [0, 4])->get();
+         $services = Service::all();
+ 
+         return view('fdcashier.walkin.walk-in', compact('users', 'services'));
+     }
+ 
+     // Generate Queue Number
+     public function getNextQueueNumber(Request $request)
+     {
+         $request->validate([
+             'service_id' => 'required|exists:services,id',
+         ]);
+ 
+         $service = Service::findOrFail($request->service_id);
+         $serviceInitials = strtoupper(substr($service->name, 0, 2));
+ 
+         // Fetch next ticket ID for generating the queue number
+         $nextTicketId = Ticket::max('id') + 1;
+         $queueNumber = $serviceInitials . str_pad($nextTicketId, 3, '0', STR_PAD_LEFT);
+ 
+         return response()->json(['queueNumber' => $queueNumber]);
+     }
+ 
+     // Store Walk-in Ticket
+     public function storeWalkIn(Request $request)
 {
     $validated = $request->validate([
         'user_id' => 'required|exists:users,id',
         'service_id' => 'required|exists:services,id',
+        'priority' => 'nullable|boolean', // Optional checkbox input
     ]);
 
     $user = User::findOrFail($validated['user_id']);
-    $isPriority = $user->usertype == 4; // Check if the user is PWD
 
-    // Find the available window for the selected service
+    // Priority is based on either the checkbox or usertype = 4
+    $isPriority = $request->has('priority') || $user->usertype == 4;
+
     $availableWindow = Window::where('status', 'active')
         ->whereHas('services', function ($query) use ($validated) {
             $query->where('services.id', $validated['service_id']);
@@ -70,39 +81,32 @@ class FDCashierController extends Controller
         ->withCount(['tickets' => function ($query) {
             $query->whereIn('status', ['waiting', 'in-service']);
         }])
-        ->orderBy('tickets_count') // Window with the fewest tickets
+        ->orderBy('tickets_count')
         ->first();
 
     if ($availableWindow) {
-        $serviceName = Service::find($validated['service_id'])->name;
-        $initials = strtoupper(substr($serviceName, 0, 2));
+        $service = Service::find($validated['service_id']);
+        $serviceInitials = strtoupper(substr($service->name, 0, 2));
 
-        // Create the ticket
+        // Create ticket and assign queue number
         $ticket = Ticket::create([
             'user_id' => $validated['user_id'],
             'service_id' => $validated['service_id'],
             'window_id' => $availableWindow->id,
             'status' => 'waiting',
-            'queue_number' => null,
-            'priority' => $isPriority, // Set priority based on usertype
+            'priority' => $isPriority,
         ]);
 
-        // Generate queue number
-        $queueNumber = $initials . str_pad($ticket->id, 3, '0', STR_PAD_LEFT);
+        $queueNumber = $serviceInitials . str_pad($ticket->id, 3, '0', STR_PAD_LEFT);
         $ticket->queue_number = $queueNumber;
         $ticket->save();
 
-        return redirect()->route('fdcashier-walkin')
-            ->with('success', "Priority: " . ($isPriority ? "Yes" : "No") . ". Ticket #{$queueNumber} has been assigned to {$availableWindow->name}.");
+        return redirect()->route('fdcashier-walkin')->with('success', "Ticket #{$queueNumber} has been assigned to window {$availableWindow->name}.");
     }
 
-
-
-
-
-    return redirect()->route('fdcashier-walkin')
-        ->with('error', 'No available windows for the selected service.');
+    return redirect()->route('fdcashier-walkin')->with('error', 'No available windows for the selected service.');
 }
+
 
 
 

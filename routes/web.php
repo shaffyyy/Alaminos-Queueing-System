@@ -200,6 +200,7 @@ Route::get('/fdcashier/queue', [FDCashierController::class, 'showQueue'])->name(
 Route::get('/fdcashier/walkin', [FDCashierController::class, 'walkIn'])->name('fdcashier-walkin');
 // cashier walk ins links
 Route::get('/fdcashier/walkin/create', [FDCashierController::class, 'createwalkIn'])->name('fdcashier-walkin-create');
+Route::post('/fdcashier/get-next-queue-number', [FDCashierController::class, 'getNextQueueNumber'])->name('fdcashier.get-next-queue-number');
 
 Route::post('/fdcashier/walkin/store', [FDCashierController::class, 'storeWalkIn'])->name('fdcashier-walkin-store');
 

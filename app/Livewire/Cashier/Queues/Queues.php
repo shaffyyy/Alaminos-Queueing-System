@@ -11,6 +11,9 @@ class Queues extends Component
 {
     public $queues;
     public $assignedWindow;
+    public $showOrModal = false;
+    public $orNumber;
+    public $currentTicketId;
 
     protected $listeners = ['refreshData' => '$refresh'];
 
@@ -22,7 +25,6 @@ class Queues extends Component
 
     public function loadAssignedWindow()
     {
-        // Fetch the window assigned to the logged-in cashier
         $this->assignedWindow = Window::where('cashier_id', Auth::id())->first();
     }
 
@@ -30,13 +32,13 @@ class Queues extends Component
     {
         if ($this->assignedWindow) {
             $this->queues = Ticket::with(['user', 'service', 'window'])
-                ->where('window_id', $this->assignedWindow->id) // Filter by assigned window
-                ->where('verify', 'verified') // Only include verified tickets
-                ->whereNotIn('status', ['completed', 'cancelled']) // Exclude completed and cancelled tickets
-                ->orderBy('created_at', 'asc') // Order by oldest first
+                ->where('window_id', $this->assignedWindow->id)
+                ->where('verify', 'verified')
+                ->whereNotIn('status', ['completed', 'cancelled'])
+                ->orderBy('created_at', 'asc')
                 ->get();
         } else {
-            $this->queues = collect(); // Empty collection if no window assigned
+            $this->queues = collect();
         }
     }
 
@@ -51,14 +53,32 @@ class Queues extends Component
         }
     }
 
-    public function completeService($ticketId)
+    public function openOrModal($ticketId)
     {
-        $ticket = Ticket::find($ticketId);
+        $this->currentTicketId = $ticketId;
+        $this->showOrModal = true;
+    }
+
+    public function closeOrModal()
+    {
+        $this->showOrModal = false;
+        $this->orNumber = null;
+    }
+
+    public function submitOrNumber()
+    {
+        $this->validate([
+            'orNumber' => 'required|string|max:255',
+        ]);
+
+        $ticket = Ticket::find($this->currentTicketId);
         if ($ticket && $ticket->status === 'in-service') {
+            $ticket->or_number = $this->orNumber;
             $ticket->status = 'completed';
             $ticket->save();
             $this->loadQueues();
-            session()->flash('message', 'Service completed for ticket.');
+            $this->closeOrModal();
+            session()->flash('message', 'Service completed and OR Number added.');
         }
     }
 

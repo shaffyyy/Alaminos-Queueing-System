@@ -16,7 +16,8 @@ class Ticket extends Model
         'status',
         'verify',
         'queue_number',
-        'verified_at' // Add verified_at here
+        'verified_at',
+        'or_number' // Add verified_at here
     ];
 
     protected $dates = [
