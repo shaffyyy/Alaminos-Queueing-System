@@ -35,6 +35,7 @@
                                     <th class="py-3 px-4 text-left font-medium">Name</th>
                                     <th class="py-3 px-4 text-center font-medium">Services</th>
                                     <th class="py-3 px-4 text-left font-medium">Cashier</th>
+                                    <th class="py-3 px-4 text-left font-medium">Priority</th>
                                     <th class="py-3 px-4 text-left font-medium">Actions</th>
                                 </tr>
                             </thead>
@@ -55,6 +56,11 @@
                                             @endif
                                         </td>
                                         <td class="py-3 px-4 text-gray-600">{{ $window->cashier->name ?? 'No Cashier Assigned' }}</td>
+                                        <td class="py-3 px-4 text-gray-600">
+                                            <span class="{{ $window->isPriority ? 'text-green-500 font-bold' : 'text-gray-500' }}">
+                                                {{ $window->isPriority ? 'Yes' : 'No' }}
+                                            </span>
+                                        </td>
                                         <td class="py-3 px-4">
                                             <a href="{{ route('admin-edit-windows', $window->id) }}" 
                                                class="text-blue-500 hover:text-blue-700 mr-2">Edit</a>

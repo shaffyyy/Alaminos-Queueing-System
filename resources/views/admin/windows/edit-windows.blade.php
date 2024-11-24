@@ -52,6 +52,16 @@
                         @error('cashier_id') <span class="text-red-500">{{ $message }}</span> @enderror
                     </div>
 
+                    <!-- Priority Status -->
+                    <div class="mb-4">
+                        <label for="isPriority" class="block font-bold">Priority Status</label>
+                        <select name="isPriority" id="isPriority" class="w-full border p-2 rounded-md">
+                            <option value="1" {{ $window->isPriority ? 'selected' : '' }}>Yes</option>
+                            <option value="0" {{ !$window->isPriority ? 'selected' : '' }}>No</option>
+                        </select>
+                        @error('isPriority') <span class="text-red-500">{{ $message }}</span> @enderror
+                    </div>
+
                     <!-- Buttons -->
                     <div class="flex justify-end space-x-2">
                         <!-- Back Button -->

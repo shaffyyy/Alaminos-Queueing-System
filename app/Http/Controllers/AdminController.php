@@ -154,15 +154,12 @@ class AdminController extends Controller
         return view('admin.windows.windows', compact('windows'));
     }
 
-
-    
     public function addWindows()
     {
         $services = Service::all(); // Get all services for the dropdown
         $cashiers = User::where('usertype', '2')->get(); // Get all cashiers for the dropdown
         return view('admin.windows.add-windows', compact('services', 'cashiers'));
     }
-
 
     public function storeWindow(Request $request)
     {
@@ -171,11 +168,13 @@ class AdminController extends Controller
             'service_id' => 'required|array', // Ensure this is an array
             'service_id.*' => 'exists:services,id', // Validate each service ID
             'cashier_id' => 'nullable|exists:users,id',
+            'isPriority' => 'nullable|boolean', // Validate as a boolean
         ]);
     
         $window = Window::create([
             'name' => $request->name,
             'cashier_id' => $request->cashier_id,
+            'isPriority' => $request->isPriority ?? 0, // Default to 0 (not priority)
         ]);
     
         // Attach multiple services
@@ -184,10 +183,6 @@ class AdminController extends Controller
         return redirect()->route('admin-windows')->with('success', 'New window added successfully!');
     }
     
-
-
-
-
     public function deleteWindow($id)
     {
         $window = Window::findOrFail($id);
@@ -204,31 +199,32 @@ class AdminController extends Controller
         return view('admin.windows.edit-windows', compact('window', 'services', 'cashiers'));
     }
 
-
-
     // update the windows
     public function updateWindow(Request $request, $id)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'service_id' => 'required|array', // Validate as array
-            'service_id.*' => 'exists:services,id', // Ensure each ID exists
-            'cashier_id' => 'nullable|exists:users,id', // Validate cashier ID
-        ]);
-    
-        $window = Window::findOrFail($id);
-    
-        // Update the basic fields
-        $window->update([
-            'name' => $request->name,
-            'cashier_id' => $request->cashier_id,
-        ]);
-    
-        // Sync services to update the pivot table
-        $window->services()->sync($request->service_id);
-    
-        return redirect()->route('admin-windows')->with('success', 'Window updated successfully!');
-    }
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'service_id' => 'required|array', // Validate as array
+        'service_id.*' => 'exists:services,id', // Ensure each ID exists
+        'cashier_id' => 'nullable|exists:users,id', // Validate cashier ID
+        'isPriority' => 'required|boolean', // Ensure it's a valid boolean
+    ]);
+
+    $window = Window::findOrFail($id);
+
+    // Update the basic fields
+    $window->update([
+        'name' => $request->name,
+        'cashier_id' => $request->cashier_id,
+        'isPriority' => $request->isPriority,
+    ]);
+
+    // Sync services to update the pivot table
+    $window->services()->sync($request->service_id);
+
+    return redirect()->route('admin-windows')->with('success', 'Window updated successfully!');
+}
+
     
 
     
@@ -314,59 +310,60 @@ class AdminController extends Controller
 
     // Report functionality
     public function reports(Request $request)
-    {
-        // Filters
-        $dateFilter = $request->get('dateFilter', 'today');
-        $serviceFilter = $request->get('serviceFilter', null);
-        $windowFilter = $request->get('windowFilter', null);
-    
-        // Date Range Logic
-        $startDate = Carbon::today();
+{
+    // Filters
+    $dateFilter = $request->get('dateFilter', 'today');
+    $serviceFilter = $request->get('serviceFilter', null);
+    $windowFilter = $request->get('windowFilter', null);
+    $statusFilter = $request->get('statusFilter', null); // New status filter
+
+    // Date Range Logic
+    $startDate = Carbon::today();
+    $endDate = Carbon::now();
+
+    if ($dateFilter === 'yesterday') {
+        $startDate = Carbon::yesterday();
+        $endDate = Carbon::yesterday()->endOfDay();
+    } elseif ($dateFilter === '7days') {
+        $startDate = Carbon::now()->subDays(6);
         $endDate = Carbon::now();
-    
-        if ($dateFilter === 'yesterday') {
-            $startDate = Carbon::yesterday();
-            $endDate = Carbon::yesterday()->endOfDay();
-        } elseif ($dateFilter === '7days') {
-            $startDate = Carbon::now()->subDays(6);
-            $endDate = Carbon::now();
-        } elseif ($dateFilter === 'thisMonth') {
-            $startDate = Carbon::now()->startOfMonth();
-            $endDate = Carbon::now();
-        }
-    
-        // Query Tickets with Filters
-        $tickets = Ticket::with('service', 'user', 'window')
-            ->when($serviceFilter, function ($query) use ($serviceFilter) {
-                return $query->where('service_id', $serviceFilter);
-            })
-            ->when($windowFilter, function ($query) use ($windowFilter) {
-                return $query->where('window_id', $windowFilter);
-            })
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->get();
-    
-        // Fetch all services and windows for filtering options
-        $services = Service::all();
-        $windows = Window::with('services', 'cashier')->get();
-    
-        // Fetch feedback summary
-        $feedback = Feedback::with('user', 'ticket')
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->get();
-    
-        return view('admin.reports', compact('tickets', 'services', 'feedback', 'windows', 'dateFilter', 'serviceFilter', 'windowFilter'));
+    } elseif ($dateFilter === 'thisMonth') {
+        $startDate = Carbon::now()->startOfMonth();
+        $endDate = Carbon::now();
     }
-    
 
+    // Query Tickets with Filters
+    $tickets = Ticket::with('service', 'user', 'window')
+        ->when($serviceFilter, function ($query) use ($serviceFilter) {
+            return $query->where('service_id', $serviceFilter);
+        })
+        ->when($windowFilter, function ($query) use ($windowFilter) {
+            return $query->where('window_id', $windowFilter);
+        })
+        ->when($statusFilter, function ($query) use ($statusFilter) {
+            return $query->where('status', $statusFilter);
+        })
+        ->whereBetween('created_at', [$startDate, $endDate])
+        ->get();
 
+    // Fetch all services and windows for filtering options
+    $services = Service::all();
+    $windows = Window::with('services', 'cashier')->get();
 
+    // Fetch feedback summary
+    $feedback = Feedback::with('user', 'ticket')
+        ->whereBetween('created_at', [$startDate, $endDate])
+        ->get();
 
-    public function generatePDF(Request $request)
+    return view('admin.reports', compact('tickets', 'services', 'feedback', 'windows', 'dateFilter', 'serviceFilter', 'windowFilter', 'statusFilter'));
+}
+
+public function generatePDF(Request $request)
 {
     $dateFilter = $request->get('dateFilter', 'today');
     $serviceFilter = $request->get('serviceFilter', null);
     $windowFilter = $request->get('windowFilter', null);
+    $statusFilter = $request->get('statusFilter', null); // New status filter
 
     // Date Range Logic
     $startDate = Carbon::today();
@@ -390,6 +387,9 @@ class AdminController extends Controller
         })
         ->when($windowFilter, function ($query) use ($windowFilter) {
             return $query->where('window_id', $windowFilter);
+        })
+        ->when($statusFilter, function ($query) use ($statusFilter) {
+            return $query->where('status', $statusFilter);
         })
         ->whereBetween('created_at', [$startDate, $endDate])
         ->get();

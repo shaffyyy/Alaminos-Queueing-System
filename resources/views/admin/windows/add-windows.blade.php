@@ -46,6 +46,16 @@
                         </select>
                     </div>
 
+                    <!-- Priority Window Checkbox -->
+                    <div class="mb-4">
+                        <label for="isPriority" class="block text-gray-700">Priority Window</label>
+                        <div class="flex items-center">
+                            <input type="checkbox" name="isPriority" id="isPriority" value="1" class="mr-2">
+                            <span>Mark this window as priority</span>
+                        </div>
+                    </div>
+
+
                     <!-- Buttons -->
                     <div class="flex justify-between items-center mt-4">
                         <!-- Back Button -->

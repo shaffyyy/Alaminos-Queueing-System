@@ -9,7 +9,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white shadow-xl sm:rounded-lg p-6">
                 <!-- Filters -->
-                <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
                     <!-- Date Filter -->
                     <div>
                         <label for="dateFilter" class="block text-sm font-medium text-gray-700">Date Filter</label>
@@ -44,6 +44,16 @@
                                     {{ $window->name }}
                                 </option>
                             @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div>
+                        <label for="statusFilter" class="block text-sm font-medium text-gray-700">Status</label>
+                        <select name="statusFilter" id="statusFilter" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="">All Statuses</option>
+                            <option value="complete" {{ request('statusFilter') == 'complete' ? 'selected' : '' }}>Complete</option>
+                            <option value="cancelled" {{ request('statusFilter') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                         </select>
                     </div>
 
