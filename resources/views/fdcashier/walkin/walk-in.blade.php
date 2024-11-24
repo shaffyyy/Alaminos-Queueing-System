@@ -33,14 +33,14 @@
                         </select>
                     </div>
 
-                    <!-- Priority Checkbox -->
-                    <div class="mb-4">
-                        <label for="priority" class="block text-gray-700 font-bold mb-2">
-                            <input type="checkbox" name="priority" id="priority" class="mr-2">
-                            Mark as Priority Lane
-                        </label>
-                    </div>
-                    
+                    <!-- Priority Selection -->
+                    {{-- <div class="mb-4">
+                        <label for="priority" class="block text-gray-700 font-bold mb-2">Select Priority</label>
+                        <select name="priority" id="priority" class="w-full border-gray-300 rounded-lg p-2 shadow-sm" required>
+                            <option value="0">Regular</option>
+                            <option value="1">Priority</option>
+                        </select>
+                    </div> --}}
 
                     <!-- Queue Number -->
                     <div id="queue-number-container" class="mb-4 hidden">
@@ -73,11 +73,17 @@
         </div>
     </div>
 
-    <!-- Include jQuery -->
+    <!-- Include jQuery and Select2 -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
     <script>
         $(document).ready(function () {
+            // Initialize Select2 for dropdowns
+            $('#user_id, #service_id, #priority').select2();
+
+            // Dynamically generate the queue number based on service selection
             $('#service_id').on('change', function () {
                 const serviceId = $(this).val();
 

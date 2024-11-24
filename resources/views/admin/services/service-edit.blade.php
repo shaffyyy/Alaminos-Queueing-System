@@ -35,14 +35,14 @@
                         @error('description') <span class="text-red-500">{{ $message }}</span> @enderror
                     </div>
 
-                    <div class="mb-4">
+                    {{-- <div class="mb-4">
                         <label for="status" class="block font-bold">Status</label>
                         <select name="status" id="status" class="w-full border p-2 rounded-md">
                             <option value="1" {{ $service->status ? 'selected' : '' }}>Active</option>
                             <option value="0" {{ !$service->status ? 'selected' : '' }}>Inactive</option>
                         </select>
                         @error('status') <span class="text-red-500">{{ $message }}</span> @enderror
-                    </div>
+                    </div> --}}
 
                     <div class="flex justify-end">
                         <a href="{{ route('admin-view-services') }}" class="mr-4 bg-gray-500 text-white px-4 py-2 rounded-md">Cancel</a>

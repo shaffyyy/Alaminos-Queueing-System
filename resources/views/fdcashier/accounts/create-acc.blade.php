@@ -50,8 +50,8 @@
 
                     <!-- User Type Selection -->
                     <div class="mb-4">
-                        <label for="role" class="block text-gray-700 font-bold mb-2">User Type</label>
-                        <select name="role" id="role" class="w-full border-gray-300 rounded-lg p-2 shadow-sm" required>
+                        <label for="usertype" class="block text-gray-700 font-bold mb-2">User Type</label>
+                        <select name="usertype" id="usertype" class="w-full border-gray-300 rounded-lg p-2 shadow-sm" required>
                             <option value="">Select a Role</option>
                             <option value="0">User</option>
                             <option value="4">Special</option>

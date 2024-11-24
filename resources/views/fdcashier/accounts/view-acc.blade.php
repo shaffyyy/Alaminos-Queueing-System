@@ -30,7 +30,7 @@
                                         <td class="px-4 py-2 text-gray-700 font-semibold">{{ $account->name }}</td>
                                         <td class="px-4 py-2 text-gray-600">{{ $account->email }}</td>
                                         <td class="px-4 py-2 text-gray-600">
-                                            {{ $account->usertype == 0 ? 'User' : 'PWD' }}
+                                            {{ $account->usertype == 0 ? 'User' : 'Special' }}
                                         </td>
                                         <td class="px-4 py-2 text-gray-600 flex space-x-2">
                                             <a href="{{ route('fdcashier-accounts-edit', $account->id) }}" class="text-blue-500 hover:text-blue-700">Edit</a>

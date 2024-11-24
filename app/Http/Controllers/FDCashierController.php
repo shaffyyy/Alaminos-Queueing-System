@@ -60,53 +60,68 @@ class FDCashierController extends Controller
          return response()->json(['queueNumber' => $queueNumber]);
      }
  
-     // Store Walk-in Ticket
      public function storeWalkIn(Request $request)
-{
-    $validated = $request->validate([
-        'user_id' => 'required|exists:users,id',
-        'service_id' => 'required|exists:services,id',
-        'priority' => 'nullable|boolean', // Optional checkbox input
-    ]);
-
-    $user = User::findOrFail($validated['user_id']);
-
-    // Priority is based on either the checkbox or usertype = 4
-    $isPriority = $request->has('priority') || $user->usertype == 4;
-
-    $availableWindow = Window::where('status', 'active')
-        ->whereHas('services', function ($query) use ($validated) {
-            $query->where('services.id', $validated['service_id']);
-        })
-        ->withCount(['tickets' => function ($query) {
-            $query->whereIn('status', ['waiting', 'in-service']);
-        }])
-        ->orderBy('tickets_count')
-        ->first();
-
-    if ($availableWindow) {
-        $service = Service::find($validated['service_id']);
-        $serviceInitials = strtoupper(substr($service->name, 0, 2));
-
-        // Create ticket and assign queue number
-        $ticket = Ticket::create([
-            'user_id' => $validated['user_id'],
-            'service_id' => $validated['service_id'],
-            'window_id' => $availableWindow->id,
-            'status' => 'waiting',
-            'priority' => $isPriority,
-        ]);
-
-        $queueNumber = $serviceInitials . str_pad($ticket->id, 3, '0', STR_PAD_LEFT);
-        $ticket->queue_number = $queueNumber;
-        $ticket->save();
-
-        return redirect()->route('fdcashier-walkin')->with('success', "Ticket #{$queueNumber} has been assigned to window {$availableWindow->name}.");
-    }
-
-    return redirect()->route('fdcashier-walkin')->with('error', 'No available windows for the selected service.');
-}
-
+     {
+         $validated = $request->validate([
+             'user_id' => 'required|exists:users,id',
+             'service_id' => 'required|exists:services,id',
+             'priority' => 'nullable|boolean', // Optional checkbox input
+         ]);
+     
+         $user = User::findOrFail($validated['user_id']);
+     
+         // Determine priority based on checkbox or usertype = 4
+         $isPriority = $request->has('priority') || $user->usertype == 4;
+     
+         // Query windows based on priority or non-priority
+         $availableWindow = Window::where('status', 'active')
+             ->where('isPriority', $isPriority ? 1 : 0) // Match priority if applicable
+             ->whereHas('services', function ($query) use ($validated) {
+                 $query->where('services.id', $validated['service_id']);
+             })
+             ->withCount(['tickets' => function ($query) {
+                 $query->whereIn('status', ['waiting', 'in-service']);
+             }])
+             ->orderBy('tickets_count') // Assign the window with the least tickets
+             ->first();
+     
+         // If no window is found for the specific priority, fall back to any available window
+         if (!$availableWindow) {
+             $availableWindow = Window::where('status', 'active')
+                 ->whereHas('services', function ($query) use ($validated) {
+                     $query->where('services.id', $validated['service_id']);
+                 })
+                 ->withCount(['tickets' => function ($query) {
+                     $query->whereIn('status', ['waiting', 'in-service']);
+                 }])
+                 ->orderBy('tickets_count')
+                 ->first();
+         }
+     
+         // If still no window is available, return an error
+         if (!$availableWindow) {
+             return redirect()->route('fdcashier-walkin')->with('error', 'No available windows for the selected service.');
+         }
+     
+         // Generate queue number
+         $service = Service::findOrFail($validated['service_id']);
+         $serviceInitials = strtoupper(substr($service->name, 0, 2));
+     
+         $ticket = Ticket::create([
+             'user_id' => $validated['user_id'],
+             'service_id' => $validated['service_id'],
+             'window_id' => $availableWindow->id,
+             'status' => 'waiting',
+             'priority' => $isPriority,
+         ]);
+     
+         $queueNumber = $serviceInitials . str_pad($ticket->id, 3, '0', STR_PAD_LEFT);
+         $ticket->queue_number = $queueNumber;
+         $ticket->save();
+     
+         return redirect()->route('fdcashier-walkin')->with('success', "Ticket #{$queueNumber} has been assigned to window {$availableWindow->name}.");
+     }
+     
 
 
 
@@ -134,23 +149,26 @@ class FDCashierController extends Controller
     }
 
     public function storeAcc(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:0,4', // Use 'in' to specify allowed values
-        ]);
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users',
+        'password' => 'required|string|min:8|confirmed',
+        'usertype' => 'required|integer|in:0,4',
+    ]);
 
-        User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'usertype' => $validated['role'], // Use 'usertype' instead of 'role'
-        ]);
+    // Save the user
+    User::create([
+        'name' => $validated['name'],
+        'email' => $validated['email'],
+        'password' => Hash::make($validated['password']),
+        'usertype' => (int) $validated['usertype'], // Cast role to integer
+    ]);
 
-        return redirect()->route('fdcashier-accounts')->with('success', 'Account created successfully.');
-    }
+    return redirect()->route('fdcashier-accounts')->with('success', 'Account created successfully.');
+}
+
+
 
     public function editAcc($id)
     {
