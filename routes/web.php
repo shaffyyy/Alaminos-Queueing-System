@@ -6,6 +6,7 @@ use App\Http\Controllers\FDCashierController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ServiceController;
 use App\Livewire\Cashier\Home\Home;
+use App\Livewire\User\ContactUs\ContactUs;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,15 +42,22 @@ Route::get('/home', [AdminController::class, 'index'])->name('home');
 Route::get('/user/get-in-queue', function(){
     return view('user.get-in-queue');
 })->name('get-in-queue');
+
 Route::get('/user/about-us', function(){
     return view('user.about-us');
 })->name('about-us');
+
 Route::get('/user/contact-us', function(){
     return view('user.contact-us');
 })->name('contact-us');
+
 Route::get('/user/queue-history', function(){
     return view('user.queue-history');
 })->name('queue-history');
+
+// Route::get('/contact-us', ContactUs::class)->name('contact-us');
+
+
 
 // admin
 Route::get('/admin/home', function(){

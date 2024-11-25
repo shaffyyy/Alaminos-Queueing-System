@@ -72,6 +72,7 @@
                         <thead class="bg-gray-700 text-white">
                             <tr>
                                 <th class="px-6 py-3 text-left font-medium text-sm">Queue Number</th>
+                                <th class="px-6 py-3 text-left font-medium text-sm">OR Number</th>
                                 <th class="px-6 py-3 text-left font-medium text-sm">Service</th>
                                 <th class="px-6 py-3 text-left font-medium text-sm">User</th>
                                 <th class="px-6 py-3 text-left font-medium text-sm">Window</th>
@@ -83,6 +84,7 @@
                             @forelse ($tickets as $ticket)
                                 <tr class="{{ $loop->even ? 'bg-gray-100' : 'bg-white' }} hover:bg-gray-200 transition duration-200">
                                     <td class="px-6 py-3 text-sm text-gray-700">{{ $ticket->queue_number }}</td>
+                                    <td class="px-6 py-3 text-sm text-gray-700">{{ $ticket->or_number ?? 'N/A' }}</td>
                                     <td class="px-6 py-3 text-sm text-gray-700">{{ $ticket->service->name }}</td>
                                     <td class="px-6 py-3 text-sm text-gray-700">{{ $ticket->user->name }}</td>
                                     <td class="px-6 py-3 text-sm text-gray-700">{{ $ticket->window->name ?? 'N/A' }}</td>

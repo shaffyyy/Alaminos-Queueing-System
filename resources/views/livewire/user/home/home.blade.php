@@ -7,8 +7,11 @@
                 Streamline your services with the Queuing Management System for Alaminos City Hall.
             </p>
             <div class="mt-8 space-x-4">
-                <x-button href="{{ url('/book') }}" color="white">Get in Line</x-button>
-                <x-button href="{{ url('/services') }}" color="white">Services</x-button>
+                <a href="{{ route('get-in-queue') }}">
+                    <x-button color="white">Get in Line</x-button>
+                </a>
+                
+
             </div>
         </div>
     </div>

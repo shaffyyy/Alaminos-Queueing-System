@@ -56,20 +56,18 @@ class GetInQueue extends Component
 
     public function loadQueueMonitoring()
     {
-        // Fetch the authenticated user's current ticket
         $currentTicket = Ticket::with(['service', 'window'])
             ->where('user_id', Auth::id())
             ->where('verify', 'verified')
             ->whereNotIn('status', ['cancelled', 'completed'])
             ->latest()
             ->first();
-    
-        // If the user has a ticket, fetch other tickets queued in the same window
+
         if ($currentTicket && $currentTicket->window) {
             $this->queues = Ticket::with(['service'])
-                ->where('window_id', $currentTicket->window->id) // Same window
-                ->whereNotIn('status', ['cancelled', 'completed']) // Exclude cancelled and completed
-                ->orderBy('created_at', 'asc') // Order by time of queue
+                ->where('window_id', $currentTicket->window->id)
+                ->whereNotIn('status', ['cancelled', 'completed'])
+                ->orderBy('created_at', 'asc')
                 ->get()
                 ->map(function ($ticket) {
                     return [
@@ -80,66 +78,80 @@ class GetInQueue extends Component
                 })
                 ->toArray();
         } else {
-            // If no ticket, clear the queues
             $this->queues = [];
         }
     }
-    
 
     public function joinQueue()
-    {
-        if (!Auth::user()->hasVerifiedEmail()) {
-            session()->flash('error', 'Please verify your email to join the queue.');
-            return;
-        }
+{
+    if (!Auth::user()->hasVerifiedEmail()) {
+        session()->flash('error', 'Please verify your email to join the queue.');
+        return;
+    }
 
-        $this->validate([
-            'service' => 'required|exists:services,id',
-        ]);
+    $this->validate([
+        'service' => 'required|exists:services,id',
+    ]);
 
-        $isPriority = Auth::user()->usertype == 4;
+    // Determine if the user is priority based on usertype
+    $isPriority = Auth::user()->usertype == 4;
 
+    // Attempt to find a window matching the priority
+    $availableWindow = Window::where('status', 'active')
+        ->where('isPriority', $isPriority ? 1 : 0) // Match priority windows
+        ->whereHas('services', function ($query) {
+            $query->where('services.id', $this->service);
+        })
+        ->withCount(['tickets as waiting_tickets_count' => function ($query) {
+            $query->whereIn('status', ['waiting', 'in-service']);
+        }])
+        ->orderBy('waiting_tickets_count') // Assign the least busy window
+        ->first();
+
+    // Fallback: Assign to any available window if no priority match is found
+    if (!$availableWindow) {
         $availableWindow = Window::where('status', 'active')
             ->whereHas('services', function ($query) {
                 $query->where('services.id', $this->service);
             })
-            ->withCount(['tickets as priority_ticket_count' => function ($query) {
-                $query->where('priority', true)->whereIn('status', ['waiting', 'in-service']);
+            ->withCount(['tickets as waiting_tickets_count' => function ($query) {
+                $query->whereIn('status', ['waiting', 'in-service']);
             }])
-            ->withCount(['tickets as regular_ticket_count' => function ($query) {
-                $query->where('priority', false)->whereIn('status', ['waiting', 'in-service']);
-            }])
-            ->orderBy($isPriority ? 'priority_ticket_count' : 'regular_ticket_count')
+            ->orderBy('waiting_tickets_count')
             ->first();
-
-        if ($availableWindow) {
-            $serviceName = Service::find($this->service)->name;
-            $initials = strtoupper(substr($serviceName, 0, 2));
-
-            $ticket = Ticket::create([
-                'user_id' => Auth::id(),
-                'service_id' => $this->service,
-                'window_id' => $availableWindow->id,
-                'status' => 'waiting',
-                'queue_number' => null,
-                'priority' => $isPriority,
-            ]);
-
-            $queueNumber = $initials . str_pad($ticket->id, 3, '0', STR_PAD_LEFT);
-            $ticket->queue_number = $queueNumber;
-            $ticket->save();
-
-            $this->queueNumber = $ticket->queue_number;
-            $this->pendingVerificationMessage = true;
-            $this->assignedWindow = $availableWindow->name;
-            $this->currentTicketId = $ticket->id;
-
-            session()->flash('message', 'You have joined the queue!');
-            $this->reset('service');
-        } else {
-            session()->flash('error', 'No available windows for the selected service at the moment.');
-        }
     }
+
+    // If no window is found, return an error
+    if (!$availableWindow) {
+        session()->flash('error', 'No available windows for the selected service.');
+        return;
+    }
+
+    // Generate queue number
+    $service = Service::findOrFail($this->service);
+    $serviceInitials = strtoupper(substr($service->name, 0, 2));
+
+    $ticket = Ticket::create([
+        'user_id' => Auth::id(),
+        'service_id' => $this->service,
+        'window_id' => $availableWindow->id,
+        'status' => 'waiting',
+        'priority' => $isPriority,
+    ]);
+
+    $queueNumber = $serviceInitials . str_pad($ticket->id, 3, '0', STR_PAD_LEFT);
+    $ticket->queue_number = $queueNumber;
+    $ticket->save();
+
+    $this->queueNumber = $ticket->queue_number;
+    $this->pendingVerificationMessage = true;
+    $this->assignedWindow = $availableWindow->name;
+    $this->currentTicketId = $ticket->id;
+
+    session()->flash('message', 'You have joined the queue!');
+    $this->reset('service');
+}
+
 
     public function cancelTicket($ticketId)
     {
@@ -157,22 +169,20 @@ class GetInQueue extends Component
     }
 
     public function startService($ticketId)
-{
-    $ticket = Ticket::find($ticketId);
+    {
+        $ticket = Ticket::find($ticketId);
 
-    if ($ticket && $ticket->status === 'waiting') {
-        $ticket->status = 'in-service';
-        $ticket->save();
+        if ($ticket && $ticket->status === 'waiting') {
+            $ticket->status = 'in-service';
+            $ticket->save();
 
-        // Emit an event to notify the front end of the status change
-        $this->emit('statusUpdated', $ticket->queue_number, $ticket->status);
+            $this->emit('statusUpdated', $ticket->queue_number, $ticket->status);
 
-        session()->flash('message', 'The ticket has been moved to in-service.');
-    } else {
-        session()->flash('error', 'Invalid ticket or status.');
+            session()->flash('message', 'The ticket has been moved to in-service.');
+        } else {
+            session()->flash('error', 'Invalid ticket or status.');
+        }
     }
-}
-
 
     public function render()
     {

@@ -56,6 +56,7 @@
             <thead>
                 <tr>
                     <th>Queue Number</th>
+                    <th>OR Number</th>
                     <th>Service</th>
                     <th>User</th>
                     <th>Window</th>
@@ -67,6 +68,7 @@
                 @forelse ($tickets as $ticket)
                     <tr>
                         <td>{{ $ticket->queue_number }}</td>
+                        <td>{{ $ticket->or_number ?? 'N/A' }}</td>
                         <td>{{ $ticket->service->name }}</td>
                         <td>{{ $ticket->user->name }}</td>
                         <td>{{ $ticket->window->name ?? 'N/A' }}</td>

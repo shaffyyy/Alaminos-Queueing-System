@@ -61,28 +61,28 @@
                 <i class="fas fa-phone-alt text-blue-500 text-2xl"></i>
                 <div>
                     <span class="text-gray-700 font-semibold">Phone:</span>
-                    <p class="text-gray-600">+1 (123) 456-7890</p>
+                    <p class="text-gray-600">+63 916 4566 244</p>
                 </div>
             </div>
             <div class="flex items-center space-x-4">
                 <i class="fas fa-envelope text-blue-500 text-2xl"></i>
                 <div>
                     <span class="text-gray-700 font-semibold">Email:</span>
-                    <p class="text-gray-600">contact@yourdomain.com</p>
+                    <p class="text-gray-600">lattolatto0415@gmail.com</p>
                 </div>
             </div>
             <div class="flex items-center space-x-4">
                 <i class="fas fa-map-marker-alt text-blue-500 text-2xl"></i>
                 <div>
                     <span class="text-gray-700 font-semibold">Address:</span>
-                    <p class="text-gray-600">1234 Main St, City, State</p>
+                    <p class="text-gray-600">Alminos City, Pangasinan , Philippines</p>
                 </div>
             </div>
             <div class="flex items-center space-x-4">
                 <i class="fas fa-clock text-blue-500 text-2xl"></i>
                 <div>
                     <span class="text-gray-700 font-semibold">Hours:</span>
-                    <p class="text-gray-600">Mon - Fri, 9 AM - 5 PM</p>
+                    <p class="text-gray-600">Mon - Fri, 8 AM - 4 PM</p>
                 </div>
             </div>
         </div>
