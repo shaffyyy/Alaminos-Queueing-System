@@ -2,16 +2,13 @@
     <div class="w-full max-w-7xl sm:px-6 lg:px-12">
 
         <style>
-            /* Grid layout for the window cards */
             #window-container {
                 display: grid;
                 grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
                 gap: 1.5rem;
-                overflow: hidden;
                 width: 100%;
             }
 
-            /* Individual card styling */
             .window-card {
                 background-color: #f3f3f3;
                 border: 2px solid #000;
@@ -20,17 +17,6 @@
                 padding: 1.5rem;
                 text-align: center;
                 font-size: 1rem;
-            }
-
-            /* Fullscreen mode */
-            #monitorTable {
-                overflow: hidden;
-                height: auto;
-                min-height: 90vh;
-            }
-
-            #monitorTable.fullscreen-active {
-                height: 100vh;
             }
         </style>
 
@@ -41,9 +27,9 @@
             </button>
         </div>
 
-        <div id="monitorTable" class="bg-gray-800 rounded-lg shadow-lg p-10">
+        <div wire:poll.2s="loadWindows" id="monitorTable" class="bg-gray-800 rounded-lg shadow-lg p-10">
             <div id="window-container">
-                @foreach($windows as $index => $window)
+                @foreach($windows as $window)
                     <div class="window-card">
                         <h2 class="text-2xl font-bold text-gray-700 mb-4">{{ $window['name'] }}</h2>
                         <p class="text-md text-gray-500 italic mb-4">Service: <span class="text-gray-800 font-medium">{{ $window['service'] }}</span></p>
@@ -73,6 +59,7 @@
 </div>
 
 <script>
+    // fullscreen
     function toggleFullScreen(elementId) {
         let element = document.getElementById(elementId);
 
@@ -90,7 +77,8 @@
             });
         }
     }
-
+    
+    // slide
     document.addEventListener('DOMContentLoaded', function () {
         const container = document.getElementById('window-container');
         const cards = Array.from(container.querySelectorAll('.window-card'));
@@ -113,4 +101,37 @@
         // Set interval for sliding every 4 seconds
         setInterval(slideNext, 4000);
     });
+
+    // document.addEventListener('livewire:load', function () {
+    //     Livewire.on('windows-updated', function (data) {
+    //         console.log('Windows updated:', data.windows);
+    //         updateMonitorTable(data.windows); // Custom function to update the UI
+    //     });
+
+    //     // Function to update the monitorTable dynamically
+    //     function updateMonitorTable(windows) {
+    //         const container = document.getElementById('window-container');
+    //         container.innerHTML = ''; // Clear the container
+
+    //         windows.forEach(window => {
+    //             const windowCard = document.createElement('div');
+    //             windowCard.className = 'window-card';
+    //             windowCard.innerHTML = `
+    //                 <h2 class="text-2xl font-bold text-gray-700 mb-4">${window.name}</h2>
+    //                 <p class="text-md text-gray-500 italic mb-4">Service: <span class="text-gray-800 font-medium">${window.service}</span></p>
+    //                 <div class="mb-4">
+    //                     <div class="text-md font-semibold text-gray-600 mb-2">Now Serving</div>
+    //                     <div class="text-2xl font-bold text-blue-500">${window.now_serving || 'N/A'}</div>
+    //                 </div>
+    //                 <div>
+    //                     <div class="text-md font-semibold text-gray-600 mb-2">Waiting in Line</div>
+    //                     <ul class="list-none">
+    //                         ${window.waiting.length ? window.waiting.map(queue => `<li class="py-1 px-2 bg-gray-300 rounded-lg mb-2">${queue}</li>`).join('') : '<li class="py-1 px-2 bg-gray-300 rounded-lg">No tickets waiting</li>'}
+    //                     </ul>
+    //                 </div>
+    //             `;
+    //             container.appendChild(windowCard);
+    //         });
+    //     }
+    // });
 </script>

@@ -6,7 +6,7 @@ export default defineConfig({
     server: {
         host: "0.0.0.0", // Allow Vite to listen on all interfaces
         hmr: {
-            host: "192.168.254.112", // Replace with your computer's IP
+            host: "192.168.0.118", // Replace with your computer's IP
         },
     },
 });
