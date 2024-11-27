@@ -52,7 +52,7 @@
                         <label for="statusFilter" class="block text-sm font-medium text-gray-700">Status</label>
                         <select name="statusFilter" id="statusFilter" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                             <option value="">All Statuses</option>
-                            <option value="complete" {{ request('statusFilter') == 'complete' ? 'selected' : '' }}>Complete</option>
+                            <option value="completed" {{ request('statusFilter') == 'completed' ? 'selected' : '' }}>Complete</option>
                             <option value="cancelled" {{ request('statusFilter') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                         </select>
                     </div>

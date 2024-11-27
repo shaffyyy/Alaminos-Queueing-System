@@ -19,7 +19,7 @@
                     </div>
                     <div class="mt-4 flex space-x-2">
                         <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Filter</button>
-                        <button type="button" onclick="window.print()" class="bg-green-500 text-white px-4 py-2 rounded-lg">Print</button>
+                        {{-- <button type="button" onclick="window.print()" class="bg-green-500 text-white px-4 py-2 rounded-lg">Print</button> --}}
                         <a href="{{ route('cashier-reports-pdf', request()->all()) }}" target="_blank" class="bg-red-500 text-white px-4 py-2 rounded-lg">Save as PDF</a>
                     </div>
                 </form>

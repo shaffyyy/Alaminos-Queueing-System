@@ -3,7 +3,7 @@
         <div class="bg-white overflow-hidden sm:rounded-lg">
             <div class="main-content container mx-auto">
                 <!-- Dashboard Overview -->
-                <div class="overview-section mb-6 border rounded p-4 shadow bg-gray-100">
+                <div class="overview-section mb-6 border rounded p-4 shadow bg-gray-200">
                     <h2 class="mb-4 text-xl font-semibold">Dashboard Overview</h2>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="bg-blue-500 text-white rounded p-4 shadow">
@@ -22,10 +22,10 @@
                 </div>
 
                 <!-- Real-Time Table of Windows -->
-                <div class="recent-activities-section border rounded p-4 shadow bg-gray-100" wire:poll.5s>
+                <div class="recent-activities-section border rounded p-4 shadow bg-gray-200" wire:poll.5s>
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-semibold">Windows</h2>
-                        <a href="{{route('cashier-queue')}}" class="bg-blue-500 text-white py-2 px-4 rounded">See More</a>
+                        {{-- <a href="{{route('cashier-queue')}}" class="bg-blue-500 text-white py-2 px-4 rounded">See More</a> --}}
                     </div>
                     <div class="overflow-x-auto bg-gray-50 rounded-lg shadow-lg">
                         <table class="min-w-full border divide-y divide-gray-200">
@@ -34,7 +34,7 @@
                                     <th class="px-4 py-3 text-left font-medium">Window</th>
                                     <th class="px-4 py-3 text-left font-medium">Status</th>
                                     <th class="px-4 py-3 text-left font-medium">Service</th>
-                                    <th class="px-4 py-3 text-left font-medium">Current Queues</th>
+                                    <th class="px-4 py-3 text-left font-medium">Total Queues</th>
                                 </tr>
                             </thead>
                             <tbody>
