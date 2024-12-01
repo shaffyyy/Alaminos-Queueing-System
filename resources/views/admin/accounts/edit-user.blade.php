@@ -39,7 +39,7 @@
                         <label for="usertype" class="block text-sm font-medium text-gray-700">User Type</label>
                         <select name="usertype" id="usertype" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                             <option value="0" {{ $user->usertype == 0 ? 'selected' : '' }}>User</option>
-                            <option value="0" {{ $user->usertype == 4 ? 'selected' : '' }}>PWD</option>
+                            <option value="4" {{ $user->usertype == 4 ? 'selected' : '' }}>Special</option>
                             <option value="1" {{ $user->usertype == 1 ? 'selected' : '' }}>Admin</option>
                             <option value="2" {{ $user->usertype == 2 ? 'selected' : '' }}>Cashier</option>
                             <option value="3" {{ $user->usertype == 3 ? 'selected' : '' }}>FD Cashier</option>

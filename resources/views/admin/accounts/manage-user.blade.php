@@ -26,7 +26,7 @@
                             <option value="1" {{ request('usertype') == '1' ? 'selected' : '' }}>Admin</option>
                             <option value="2" {{ request('usertype') == '2' ? 'selected' : '' }}>Cashier</option>
                             <option value="3" {{ request('usertype') == '3' ? 'selected' : '' }}>FD Cashier</option>
-                            <option value="4" {{ request('usertype') == '4' ? 'selected' : '' }}>PWD</option>
+                            <option value="4" {{ request('usertype') == '4' ? 'selected' : '' }}>Special</option>
                         </select>
 
                         <button type="submit" class="ml-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200">
@@ -69,7 +69,7 @@
                                             @elseif($user->usertype == 3)
                                                 <span class="bg-green-100 text-green-800 px-2.5 py-0.5 rounded-full text-xs font-semibold">FD Cashier</span>
                                             @elseif($user->usertype == 4)
-                                                <span class="bg-purple-100 text-purple-800 px-2.5 py-0.5 rounded-full text-xs font-semibold">PWD</span>
+                                                <span class="bg-purple-100 text-purple-800 px-2.5 py-0.5 rounded-full text-xs font-semibold">Special</span>
                                             @endif
                                         </td>
                                         <td class="px-4 py-3 text-gray-600">

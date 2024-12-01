@@ -48,7 +48,7 @@
                             <option value="1">Admin</option>
                             <option value="2">Cashier</option>
                             <option value="3">FD Cashier</option>
-                            <option value="4">PWD</option> <!-- New Role Added -->
+                            <option value="4">Special</option> <!-- New Role Added -->
                         </select>
                     </div>
 

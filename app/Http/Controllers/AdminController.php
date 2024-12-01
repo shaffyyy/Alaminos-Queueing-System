@@ -267,33 +267,32 @@ class AdminController extends Controller
         return redirect()->route('admin-view-services')->with('success', 'Service created successfully!');
     }
     
-
-    // Edit a service
+    // Edit an existing service
     public function editService($id)
     {
         $service = Service::findOrFail($id);
         return view('admin.services.service-edit', compact('service'));
     }
 
-
-    // Update a service
+    // Update an existing service
     public function updateService(Request $request, $id)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'status' => 'required|boolean',
+           
         ]);
 
         $service = Service::findOrFail($id);
         $service->update([
             'name' => $request->name,
             'description' => $request->description,
-            'status' => $request->status,
+            
         ]);
 
         return redirect()->route('admin-view-services')->with('success', 'Service updated successfully!');
     }
+
 
 
     // Delete a service
@@ -302,26 +301,27 @@ class AdminController extends Controller
         $service = Service::findOrFail($id);
         $service->delete();
 
-        return redirect()->route('admin-view-services')->with('success', 'Service deleted successfully!');
+        return redirect()->route('admin-view-services')->with('message', 'Service deleted successfully!');
     }
 
 
 
 
-    // Report functionality
-    public function reports(Request $request)
-{
-    // Filters
-    $dateFilter = $request->get('dateFilter', 'today');
-    $serviceFilter = $request->get('serviceFilter', null);
-    $windowFilter = $request->get('windowFilter', null);
-    $statusFilter = $request->get('statusFilter', null); // New status filter
 
-    // Date Range Logic
-    $startDate = Carbon::today();
-    $endDate = Carbon::now();
-
-    if ($dateFilter === 'yesterday') {
+  // Report functionality
+  public function reports(Request $request)
+  {
+      // Get filters from request, with default values
+      $dateFilter = $request->get('dateFilter', 'today');
+      $serviceFilter = $request->get('serviceFilter', null);
+      $windowFilter = $request->get('windowFilter', null);
+      $statusFilter = $request->get('statusFilter', null); // New status filter
+  
+      // Date Range Logic
+      $startDate = Carbon::today();
+      $endDate = Carbon::now();
+  
+      if ($dateFilter === 'yesterday') {
         $startDate = Carbon::yesterday();
         $endDate = Carbon::yesterday()->endOfDay();
     } elseif ($dateFilter === '7days') {
@@ -330,85 +330,113 @@ class AdminController extends Controller
     } elseif ($dateFilter === 'thisMonth') {
         $startDate = Carbon::now()->startOfMonth();
         $endDate = Carbon::now();
+    } elseif ($dateFilter === 'lastMonth') {
+        $startDate = Carbon::now()->subMonth()->startOfMonth();
+        $endDate = Carbon::now()->subMonth()->endOfMonth();
     }
 
-    // Query Tickets with Filters
-    $tickets = Ticket::with('service', 'user', 'window')
-        ->when($serviceFilter, function ($query) use ($serviceFilter) {
-            return $query->where('service_id', $serviceFilter);
-        })
-        ->when($windowFilter, function ($query) use ($windowFilter) {
-            return $query->where('window_id', $windowFilter);
-        })
-        ->when($statusFilter, function ($query) use ($statusFilter) {
-            return $query->where('status', $statusFilter);
-        })
-        ->whereBetween('created_at', [$startDate, $endDate])
-        ->get();
+      // Query Tickets with Filters
+      $tickets = Ticket::with('service', 'user', 'window')
+          ->when($serviceFilter, function ($query) use ($serviceFilter) {
+              return $query->where('service_id', $serviceFilter);
+          })
+          ->when($windowFilter, function ($query) use ($windowFilter) {
+              return $query->where('window_id', $windowFilter);
+          })
+          ->when($statusFilter, function ($query) use ($statusFilter) {
+              return $query->where('status', $statusFilter);
+          })
+          ->whereBetween('created_at', [$startDate, $endDate])
+          ->get();
+  
+      // Fetch all services and windows for filtering options
+      $services = Service::all();
+      $windows = Window::with('services', 'cashier')->get();
+  
+      // Fetch feedback summary with related window info
+      $feedback = Feedback::with('user', 'ticket.window') // Include window info
+          ->whereBetween('created_at', [$startDate, $endDate])
+          ->when($serviceFilter, function ($query) use ($serviceFilter) {
+              return $query->whereHas('ticket', function ($query) use ($serviceFilter) {
+                  $query->where('service_id', $serviceFilter);
+              });
+          })
+          ->when($windowFilter, function ($query) use ($windowFilter) {
+              return $query->whereHas('ticket', function ($query) use ($windowFilter) {
+                  $query->where('window_id', $windowFilter);
+              });
+          })
+          ->get();
+  
+      return view('admin.reports', compact('tickets', 'services', 'feedback', 'windows', 'dateFilter', 'serviceFilter', 'windowFilter', 'statusFilter'));
+  }
 
-    // Fetch all services and windows for filtering options
-    $services = Service::all();
-    $windows = Window::with('services', 'cashier')->get();
-
-    // Fetch feedback summary
-    $feedback = Feedback::with('user', 'ticket')
-        ->whereBetween('created_at', [$startDate, $endDate])
-        ->get();
-
-    return view('admin.reports', compact('tickets', 'services', 'feedback', 'windows', 'dateFilter', 'serviceFilter', 'windowFilter', 'statusFilter'));
-}
-
-public function generatePDF(Request $request)
-{
-    $dateFilter = $request->get('dateFilter', 'today');
-    $serviceFilter = $request->get('serviceFilter', null);
-    $windowFilter = $request->get('windowFilter', null);
-    $statusFilter = $request->get('statusFilter', null); // New status filter
-
-    // Date Range Logic
-    $startDate = Carbon::today();
-    $endDate = Carbon::now();
-
-    if ($dateFilter === 'yesterday') {
+  // Generate PDF Report
+  public function generatePDF(Request $request)
+  {
+      $dateFilter = $request->get('dateFilter', 'today');
+      $serviceFilter = $request->get('serviceFilter', null);
+      $windowFilter = $request->get('windowFilter', null);
+      $statusFilter = $request->get('statusFilter', null); // New status filter
+  
+      // Date Range Logic
+      $startDate = Carbon::today();
+      $endDate = Carbon::now();
+  
+      if ($dateFilter === 'yesterday') {
         $startDate = Carbon::yesterday();
         $endDate = Carbon::yesterday()->endOfDay();
     } elseif ($dateFilter === '7days') {
-        $startDate = Carbon::now()->subDays(6)->startOfDay();
+        $startDate = Carbon::now()->subDays(6);
         $endDate = Carbon::now();
     } elseif ($dateFilter === 'thisMonth') {
         $startDate = Carbon::now()->startOfMonth();
         $endDate = Carbon::now();
+    } elseif ($dateFilter === 'lastMonth') {
+        $startDate = Carbon::now()->subMonth()->startOfMonth();
+        $endDate = Carbon::now()->subMonth()->endOfMonth();
     }
-
-    // Filter Tickets
-    $tickets = Ticket::with('service', 'user', 'window')
-        ->when($serviceFilter, function ($query) use ($serviceFilter) {
-            return $query->where('service_id', $serviceFilter);
-        })
-        ->when($windowFilter, function ($query) use ($windowFilter) {
-            return $query->where('window_id', $windowFilter);
-        })
-        ->when($statusFilter, function ($query) use ($statusFilter) {
-            return $query->where('status', $statusFilter);
-        })
-        ->whereBetween('created_at', [$startDate, $endDate])
-        ->get();
-
-    // Fetch Feedback
-    $feedback = Feedback::with('user', 'ticket')
-        ->whereBetween('created_at', [$startDate, $endDate])
-        ->get();
-
-    // Fetch Windows
-    $windows = Window::with('services', 'cashier')
-        ->when($windowFilter, function ($query) use ($windowFilter) {
-            return $query->where('id', $windowFilter);
-        })
-        ->get();
-
-    $pdf = Pdf::loadView('admin.reports.pdf-minimal', compact('tickets', 'feedback', 'windows'));
-
-    return $pdf->download('Report_Summary_' . now()->format('Y-m-d_H-i-s') . '.pdf');
-}
+  
+      // Filter Tickets
+      $tickets = Ticket::with('service', 'user', 'window')
+          ->when($serviceFilter, function ($query) use ($serviceFilter) {
+              return $query->where('service_id', $serviceFilter);
+          })
+          ->when($windowFilter, function ($query) use ($windowFilter) {
+              return $query->where('window_id', $windowFilter);
+          })
+          ->when($statusFilter, function ($query) use ($statusFilter) {
+              return $query->where('status', $statusFilter);
+          })
+          ->whereBetween('created_at', [$startDate, $endDate])
+          ->get();
+  
+      // Fetch Feedback with Window Info
+      $feedback = Feedback::with('user', 'ticket.window') // Include window information
+          ->whereBetween('created_at', [$startDate, $endDate])
+          ->when($serviceFilter, function ($query) use ($serviceFilter) {
+              return $query->whereHas('ticket', function ($query) use ($serviceFilter) {
+                  $query->where('service_id', $serviceFilter);
+              });
+          })
+          ->when($windowFilter, function ($query) use ($windowFilter) {
+              return $query->whereHas('ticket', function ($query) use ($windowFilter) {
+                  $query->where('window_id', $windowFilter);
+              });
+          })
+          ->get();
+  
+      // Fetch Windows
+      $windows = Window::with('services', 'cashier')
+          ->when($windowFilter, function ($query) use ($windowFilter) {
+              return $query->where('id', $windowFilter);
+          })
+          ->get();
+  
+      // Generate PDF
+      $pdf = Pdf::loadView('admin.reports.pdf-minimal', compact('tickets', 'feedback', 'windows'));
+  
+      return $pdf->download('Report_Summary_' . now()->format('Y-m-d_H-i-s') . '.pdf');
+  }
 
 }

@@ -68,7 +68,29 @@
                 confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Livewire.emit('deleteService', serviceId);
+                    // Create a form dynamically to send a DELETE request
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/admin/services/${serviceId}`;
+
+                    // Add CSRF token
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_token';
+                    csrfInput.value = csrfToken;
+                    form.appendChild(csrfInput);
+
+                    // Add the DELETE method input (since forms only support GET and POST methods)
+                    const methodInput = document.createElement('input');
+                    methodInput.type = 'hidden';
+                    methodInput.name = '_method';
+                    methodInput.value = 'DELETE';
+                    form.appendChild(methodInput);
+
+                    // Append the form to the body and submit it
+                    document.body.appendChild(form);
+                    form.submit();
                 }
             });
         }
@@ -80,6 +102,20 @@
                     position: 'top-end',
                     icon: 'success',
                     title: '{{ session('message') }}',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    toast: true
+                });
+            @endif
+        });
+
+        // Show success alert if session has a success message
+        document.addEventListener('DOMContentLoaded', function () {
+            @if(session('success'))
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: '{{ session('success') }}',
                     showConfirmButton: false,
                     timer: 1500,
                     toast: true

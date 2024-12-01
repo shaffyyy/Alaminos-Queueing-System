@@ -12,6 +12,13 @@
                 <div class="recent-activities-section border rounded p-4 shadow bg-gray-100">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-semibold">Accounts</h2>
+
+                        <!-- Search Form -->
+                        <form method="GET" action="{{ route('fdcashier-accounts') }}" class="flex space-x-2">
+                            <input type="text" name="search" placeholder="Search by Name" value="{{ request()->query('search') }}" class="px-4 py-2 border rounded-md">
+                            <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200">Search</button>
+                        </form>
+
                         <a href="{{ route('fdcashier-accounts-create') }}" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200">Create Account</a>
                     </div>
                     <div class="overflow-x-auto bg-gray-50 rounded-lg shadow-lg">
@@ -35,15 +42,13 @@
                                         <td class="px-4 py-2 text-gray-600 flex space-x-2">
                                             <a href="{{ route('fdcashier-accounts-edit', $account->id) }}" class="text-blue-500 hover:text-blue-700">Edit</a>
 
-
                                             <button onclick="confirmDelete({{ $account->id }})" class="text-red-500 hover:text-red-700">Delete</button>
-                                            <form method="POST" action="{{ route('fdcashier-accounts-delete', $account->id) }}" onsubmit="return confirm('Are you sure you want to delete this account?');">
+
+                                            <!-- Form for Deleting -->
+                                            <form id="delete-form-{{ $account->id }}" method="POST" action="{{ route('fdcashier-accounts-delete', $account->id) }}" style="display:none;">
                                                 @csrf
                                                 @method('DELETE')
-                                                
                                             </form>
-                                            
-                                            
                                         </td>
                                     </tr>
                                 @empty
@@ -74,6 +79,7 @@
                 confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // Submit the corresponding delete form
                     document.getElementById(`delete-form-${accountId}`).submit();
                 }
             });

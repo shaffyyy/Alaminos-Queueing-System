@@ -19,7 +19,7 @@
                 @endif
 
                 <!-- Edit Service Form -->
-                <form action="{{ route('admin-update-service', $service->id) }}" method="POST">
+                <form id="editServiceForm" action="{{ route('admin-update-service', $service->id) }}" method="POST">
                     @csrf
                     @method('PUT')
 
@@ -35,22 +35,32 @@
                         @error('description') <span class="text-red-500">{{ $message }}</span> @enderror
                     </div>
 
-                    {{-- <div class="mb-4">
-                        <label for="status" class="block font-bold">Status</label>
-                        <select name="status" id="status" class="w-full border p-2 rounded-md">
-                            <option value="1" {{ $service->status ? 'selected' : '' }}>Active</option>
-                            <option value="0" {{ !$service->status ? 'selected' : '' }}>Inactive</option>
-                        </select>
-                        @error('status') <span class="text-red-500">{{ $message }}</span> @enderror
-                    </div> --}}
-
                     <div class="flex justify-end">
                         <a href="{{ route('admin-view-services') }}" class="mr-4 bg-gray-500 text-white px-4 py-2 rounded-md">Cancel</a>
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Update Service</button>
+                        <button type="button" onclick="confirmSubmit()" class="bg-blue-500 text-white px-4 py-2 rounded-md">Update Service</button>
                     </div>
                 </form>
 
             </div>
         </div>
     </div>
+
+    <script>
+        function confirmSubmit() {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to update this service?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, update it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // If confirmed, submit the form
+                    document.getElementById('editServiceForm').submit();
+                }
+            });
+        }
+    </script>
 </x-app-layout>

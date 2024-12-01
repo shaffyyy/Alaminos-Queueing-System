@@ -5,6 +5,9 @@
             font-size: 12px;
             line-height: 1.5;
         }
+        .table-wrapper {
+            overflow-x: auto; /* Enable horizontal scrolling on smaller screens */
+        }
         .table {
             width: 100%;
             border-collapse: collapse;
@@ -37,6 +40,14 @@
         h1, h2 {
             color: #1f2937; /* Dark text color */
         }
+
+        /* Responsive Feedback Column */
+        .feedback-column {
+            max-width: 250px; /* You can adjust this as needed */
+            word-wrap: break-word; /* Break long words and wrap text */
+            overflow: hidden;
+            text-overflow: ellipsis; /* Add ellipsis for long text */
+        }
     </style>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -53,63 +64,67 @@
 
                 <!-- Tickets Summary -->
                 <h2 class="mb-4">Tickets Summary</h2>
-                <table class="table mb-4">
-                    <thead>
-                        <tr>
-                            <th>Queue Number</th>
-                            <th>OR Number</th>
-                            <th>Service</th>
-                            <th>User</th>
-                            <th>Window</th>
-                            <th>Status</th>
-                            <th>Created At</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($tickets as $ticket)
+                <div class="table-wrapper">
+                    <table class="table mb-4">
+                        <thead>
                             <tr>
-                                <td>{{ $ticket->queue_number }}</td>
-                                <td>{{ $ticket->or_number ?? 'N/A' }}</td>
-                                <td>{{ $ticket->service->name }}</td>
-                                <td>{{ $ticket->user->name }}</td>
-                                <td>{{ $ticket->window->name ?? 'N/A' }}</td>
-                                <td>{{ ucfirst($ticket->status) }}</td>
-                                <td>{{ $ticket->created_at->format('F j, Y, g:i a') }}</td>
+                                <th>Queue Number</th>
+                                <th>OR Number</th>
+                                <th>Service</th>
+                                <th>User</th>
+                                <th>Window</th>
+                                <th>Status</th>
+                                <th>Created At</th>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="text-center">No tickets found for the selected filters.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @forelse ($tickets as $ticket)
+                                <tr>
+                                    <td>{{ $ticket->queue_number }}</td>
+                                    <td>{{ $ticket->or_number ?? 'N/A' }}</td>
+                                    <td>{{ $ticket->service->name }}</td>
+                                    <td>{{ $ticket->user->name }}</td>
+                                    <td>{{ $ticket->window->name ?? 'N/A' }}</td>
+                                    <td>{{ ucfirst($ticket->status) }}</td>
+                                    <td>{{ $ticket->created_at->format('F j, Y, g:i a') }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center">No tickets found for the selected filters.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
 
                 <!-- Feedback Summary -->
                 <h2 class="mb-4">User Feedback</h2>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Rating</th>
-                            <th>Comment</th>
-                            <th>Created At</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($feedback as $fb)
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead>
                             <tr>
-                                <td>{{ $fb->user->name }}</td>
-                                <td>{{ $fb->rating }} / 5</td>
-                                <td>{{ $fb->feedback }}</td>
-                                <td>{{ $fb->created_at->format('F j, Y, g:i a') }}</td>
+                                <th>User</th>
+                                <th>Rating</th>
+                                <th>Comment</th>
+                                <th>Created At</th>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="4" class="text-center">No feedback found for the selected filters.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @forelse ($feedback as $fb)
+                                <tr>
+                                    <td>{{ $fb->user->name }}</td>
+                                    <td>{{ $fb->rating }} / 5</td>
+                                    <td class="feedback-column">{{ $fb->feedback }}</td> <!-- Added class for feedback wrapping -->
+                                    <td>{{ $fb->created_at->format('F j, Y, g:i a') }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center">No feedback found for the selected filters.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

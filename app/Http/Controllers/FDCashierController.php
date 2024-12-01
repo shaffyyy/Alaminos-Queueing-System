@@ -137,11 +137,24 @@ class FDCashierController extends Controller
 
 
     // todo Account Management
-    public function showAcc()
-    {
-        $accounts = User::whereIn('usertype', [0, 4])->get(); // 0 = user, 4 = pwd
-        return view('fdcashier.accounts.view-acc', compact('accounts'));
+    public function showAcc(Request $request)
+{
+    // Check if there's a search query
+    $search = $request->input('search');
+
+    // Fetch accounts with search functionality
+    if ($search) {
+        $accounts = User::where('name', 'like', '%' . $search . '%')
+                        ->whereIn('usertype', [0, 4]) // Only user or special types
+                        ->get();
+    } else {
+        // If no search query, return all accounts
+        $accounts = User::whereIn('usertype', [0, 4])->get();
     }
+
+    return view('fdcashier.accounts.view-acc', compact('accounts'));
+}
+
     
     public function createAcc()
     {
@@ -215,47 +228,64 @@ class FDCashierController extends Controller
     // Report functionality
     public function showReports(Request $request)
     {
-        // Filters
-        $dateFilter = $request->get('dateFilter', 'today');
-        $serviceFilter = $request->get('serviceFilter', null);
-        $windowFilter = $request->get('windowFilter', null);
-    
-        // Date Range Logic
-        $startDate = Carbon::today();
-        $endDate = Carbon::now();
-    
-        if ($dateFilter === 'yesterday') {
-            $startDate = Carbon::yesterday();
-            $endDate = Carbon::yesterday()->endOfDay();
-        } elseif ($dateFilter === '7days') {
-            $startDate = Carbon::now()->subDays(6);
-            $endDate = Carbon::now();
-        } elseif ($dateFilter === 'thisMonth') {
-            $startDate = Carbon::now()->startOfMonth();
-            $endDate = Carbon::now();
-        }
-    
-        // Query Tickets with Filters
-        $tickets = Ticket::with('service', 'user', 'window')
-            ->when($serviceFilter, function ($query) use ($serviceFilter) {
-                return $query->where('service_id', $serviceFilter);
-            })
-            ->when($windowFilter, function ($query) use ($windowFilter) {
-                return $query->where('window_id', $windowFilter);
-            })
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->get();
-    
-        // Fetch all services and windows for filtering options
-        $services = Service::all();
-        $windows = Window::with('services', 'cashier')->get();
-    
-        // Fetch feedback summary
-        $feedback = Feedback::with('user', 'ticket')
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->get();
-    
-        return view('fdcashier.reports.reports', compact('tickets', 'services', 'feedback', 'windows', 'dateFilter', 'serviceFilter', 'windowFilter'));
+       // Get filters from request, with default values
+       $dateFilter = $request->get('dateFilter', 'today');
+       $serviceFilter = $request->get('serviceFilter', null);
+       $windowFilter = $request->get('windowFilter', null);
+       $statusFilter = $request->get('statusFilter', null); // New status filter
+   
+       // Date Range Logic
+       $startDate = Carbon::today();
+       $endDate = Carbon::now();
+   
+       if ($dateFilter === 'yesterday') {
+         $startDate = Carbon::yesterday();
+         $endDate = Carbon::yesterday()->endOfDay();
+     } elseif ($dateFilter === '7days') {
+         $startDate = Carbon::now()->subDays(6);
+         $endDate = Carbon::now();
+     } elseif ($dateFilter === 'thisMonth') {
+         $startDate = Carbon::now()->startOfMonth();
+         $endDate = Carbon::now();
+     } elseif ($dateFilter === 'lastMonth') {
+         $startDate = Carbon::now()->subMonth()->startOfMonth();
+         $endDate = Carbon::now()->subMonth()->endOfMonth();
+     }
+ 
+       // Query Tickets with Filters
+       $tickets = Ticket::with('service', 'user', 'window')
+           ->when($serviceFilter, function ($query) use ($serviceFilter) {
+               return $query->where('service_id', $serviceFilter);
+           })
+           ->when($windowFilter, function ($query) use ($windowFilter) {
+               return $query->where('window_id', $windowFilter);
+           })
+           ->when($statusFilter, function ($query) use ($statusFilter) {
+               return $query->where('status', $statusFilter);
+           })
+           ->whereBetween('created_at', [$startDate, $endDate])
+           ->get();
+   
+       // Fetch all services and windows for filtering options
+       $services = Service::all();
+       $windows = Window::with('services', 'cashier')->get();
+   
+       // Fetch feedback summary with related window info
+       $feedback = Feedback::with('user', 'ticket.window') // Include window info
+           ->whereBetween('created_at', [$startDate, $endDate])
+           ->when($serviceFilter, function ($query) use ($serviceFilter) {
+               return $query->whereHas('ticket', function ($query) use ($serviceFilter) {
+                   $query->where('service_id', $serviceFilter);
+               });
+           })
+           ->when($windowFilter, function ($query) use ($windowFilter) {
+               return $query->whereHas('ticket', function ($query) use ($windowFilter) {
+                   $query->where('window_id', $windowFilter);
+               });
+           })
+           ->get();
+   
+       return view('admin.reports', compact('tickets', 'services', 'feedback', 'windows', 'dateFilter', 'serviceFilter', 'windowFilter', 'statusFilter'));
     }
     
 
