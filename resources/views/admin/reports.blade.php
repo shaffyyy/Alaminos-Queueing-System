@@ -66,73 +66,80 @@
                     </div>
                 </form>
 
-                <!-- Ticket Report Table -->
-                <h3 class="text-lg font-semibold mb-4">Tickets Summary</h3>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full bg-white border rounded-lg shadow-lg">
-                        <thead class="bg-gray-700 text-white">
-                            <tr>
-                                <th class="px-6 py-3 text-left font-medium text-sm">Queue Number</th>
-                                <th class="px-6 py-3 text-left font-medium text-sm">OR Number</th>
-                                <th class="px-6 py-3 text-left font-medium text-sm">Service</th>
-                                <th class="px-6 py-3 text-left font-medium text-sm">User</th>
-                                <th class="px-6 py-3 text-left font-medium text-sm">Window</th>
-                                <th class="px-6 py-3 text-left font-medium text-sm">Status</th>
-                                <th class="px-6 py-3 text-left font-medium text-sm">Created At</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($tickets as $ticket)
-                                <tr class="{{ $loop->even ? 'bg-gray-100' : 'bg-white' }} hover:bg-gray-200 transition duration-200">
-                                    <td class="px-6 py-3 text-sm text-gray-700">{{ $ticket->queue_number }}</td>
-                                    <td class="px-6 py-3 text-sm text-gray-700">{{ $ticket->or_number ?? 'N/A' }}</td>
-                                    <td class="px-6 py-3 text-sm text-gray-700">{{ $ticket->service->name }}</td>
-                                    <td class="px-6 py-3 text-sm text-gray-700">{{ $ticket->user->name }}</td>
-                                    <td class="px-6 py-3 text-sm text-gray-700">{{ $ticket->window->name ?? 'N/A' }}</td>
-                                    <td class="px-6 py-3 text-sm text-gray-700">{{ ucfirst($ticket->status) }}</td>
-                                    <td class="px-6 py-3 text-sm text-gray-700">{{ $ticket->created_at }}</td>
-                                </tr>
-                            @empty
+                <!-- Tickets Report Grouped by Window -->
+                <h3 class="text-lg font-semibold mb-4">Transaction Summary</h3>
+                @foreach ($tickets->groupBy('window.name')->sortKeys()->sortByDesc(fn($key) => $key === 'Window 1') as $windowName => $windowTickets)
+                    <h4 class="text-md font-semibold my-4">{{ $windowName ?? 'No Window Assigned' }}</h4>
+                    <div class="overflow-x-auto mb-8">
+                        <table class="min-w-full bg-white border rounded-lg shadow-lg">
+                            <thead class="bg-gray-700 text-white">
                                 <tr>
-                                    <td colspan="6" class="px-6 py-3 text-center text-gray-500">No tickets found for the selected filters.</td>
+                                    <th class="px-6 py-3 text-left font-medium text-sm">Queue Number</th>
+                                    <th class="px-6 py-3 text-left font-medium text-sm">OR Number</th>
+                                    <th class="px-6 py-3 text-left font-medium text-sm">Service</th>
+                                    <th class="px-6 py-3 text-left font-medium text-sm">User</th>
+                                    <th class="px-6 py-3 text-left font-medium text-sm">Status</th>
+                                    <th class="px-6 py-3 text-left font-medium text-sm">Created At</th>
                                 </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                @foreach ($windowTickets as $ticket)
+                                    <tr class="{{ $loop->even ? 'bg-gray-100' : 'bg-white' }} hover:bg-gray-200 transition duration-200">
+                                        <td class="px-6 py-3 text-sm text-gray-700">{{ $ticket->queue_number }}</td>
+                                        <td class="px-6 py-3 text-sm text-gray-700">{{ $ticket->or_number ?? 'N/A' }}</td>
+                                        <td class="px-6 py-3 text-sm text-gray-700">{{ $ticket->service->name }}</td>
+                                        <td class="px-6 py-3 text-sm text-gray-700">{{ $ticket->user->name }}</td>
+                                        <td class="px-6 py-3 text-sm text-gray-700">{{ ucfirst($ticket->status) }}</td>
+                                        <td class="px-6 py-3 text-sm text-gray-700">{{ $ticket->created_at }}</td>
+                                    </tr>
+                                @endforeach
+                                <!-- Tally -->
+                                <tr class="bg-gray-200 font-semibold">
+                                    <td colspan="5" class="px-6 py-3 text-right">Total Tickets</td>
+                                    <td class="px-6 py-3 text-left">{{ $windowTickets->count() }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                @endforeach
 
-                 <!-- Feedback Summary -->
-                 <h3 class="text-lg font-semibold mt-8 mb-4">Feedback Summary</h3>
-                 <div class="overflow-x-auto">
-                     <table class="min-w-full bg-white border rounded-lg shadow-lg">
-                         <thead class="bg-gray-700 text-white">
-                             <tr>
-                                 <th class="px-6 py-3 text-left font-medium text-sm">User</th>
-                                 <th class="px-6 py-3 text-left font-medium text-sm">Rating</th>
-                                 <th class="px-6 py-3 text-left font-medium text-sm">Comment</th>
-                                 <th class="px-6 py-3 text-left font-medium text-sm">Window</th> <!-- Added column for window -->
-                                 <th class="px-6 py-3 text-left font-medium text-sm">Created At</th>
-                             </tr>
-                         </thead>
-                         <tbody>
-                             @forelse ($feedback as $fb)
-                                 <tr class="{{ $loop->even ? 'bg-gray-100' : 'bg-white' }} hover:bg-gray-200 transition duration-200">
-                                     <td class="px-6 py-3 text-sm text-gray-700">{{ $fb->user->name }}</td>
-                                     <td class="px-6 py-3 text-sm text-gray-700">{{ $fb->rating }} / 5</td>
-                                     <td class="px-6 py-3 text-sm text-gray-700" style="max-width: 200px; word-wrap: break-word; overflow: auto;">
-                                            {{ $fb->feedback }}
-                                        </td>   
-                                     <td class="px-6 py-3 text-sm text-gray-700">{{ $fb->ticket->window->name ?? 'N/A' }}</td> <!-- Display the window -->
-                                     <td class="px-6 py-3 text-sm text-gray-700">{{ $fb->created_at }}</td>
-                                 </tr>
-                             @empty
-                                 <tr>
-                                     <td colspan="5" class="px-6 py-3 text-center text-gray-500">No feedback found for the selected filters.</td>
-                                 </tr>
-                             @endforelse
-                         </tbody>
-                     </table>
-                 </div>
+              <!-- Feedback Report Grouped by Window -->
+<h3 class="text-lg font-semibold mt-8 mb-4">Feedback Summary</h3>
+@foreach ($feedback->groupBy('ticket.window.name')->sortKeys()->sortByDesc(fn($key) => $key === 'Window 1') as $windowName => $windowFeedback)
+    <h4 class="text-md font-semibold my-4">{{ $windowName ?? 'No Window Assigned' }}</h4>
+    <div class="overflow-x-auto mb-8">
+        <table class="min-w-full bg-white border rounded-lg shadow-lg">
+            <thead class="bg-gray-700 text-white">
+                <tr>
+                    <th class="px-6 py-3 text-left font-medium text-sm">User</th>
+                    <th class="px-6 py-3 text-left font-medium text-sm">Rating</th>
+                    <th class="px-6 py-3 text-left font-medium text-sm">Comment</th>
+                    <th class="px-6 py-3 text-left font-medium text-sm">Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($windowFeedback as $fb)
+                    <tr class="{{ $loop->even ? 'bg-gray-100' : 'bg-white' }} hover:bg-gray-200 transition duration-200">
+                        <td class="px-6 py-3 text-sm text-gray-700">{{ $fb->user->name }}</td>
+                        <td class="px-6 py-3 text-sm text-gray-700">{{ $fb->rating }} / 5</td>
+                        <td class="px-6 py-3 text-sm text-gray-700" style="max-width: 200px; word-wrap: break-word; overflow: auto;">
+                            {{ $fb->feedback }}
+                        </td>
+                        <td class="px-6 py-3 text-sm text-gray-700">{{ $fb->created_at }}</td>
+                    </tr>
+                @endforeach
+                <!-- Tally -->
+                <tr class="bg-gray-200 font-semibold">
+                    <td colspan="3" class="px-6 py-3 text-right">Average Rating</td>
+                    <td class="px-6 py-3 text-left">
+                        {{ number_format($windowFeedback->avg('rating'), 2) }} / 5
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+@endforeach
+
 
                 <div class="flex justify-end mt-4">
                     <a href="{{ route('admin-reports-pdf', request()->query()) }}" target="_blank" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">

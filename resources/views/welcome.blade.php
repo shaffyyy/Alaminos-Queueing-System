@@ -18,34 +18,78 @@
     @livewireStyles
 </head>
 <body class="antialiased bg-gray-100">
-    <!-- Navbar Section -->
-    <x-navbar>
-        <x-slot name="logo">
-            <a href="{{ route('home') }}">
-                <x-application-mark class="block h-9 w-auto" />
-            </a>
-        </x-slot>
-        @if (Route::has('login'))
-            <div class="space-x-4">
-                @auth
-                    <x-nav-link href="{{ url('/home') }}" :active="request()->routeIs('home')">
-                        Dashboard
-                    </x-nav-link>
-                @else
-                    <x-nav-link href="{{ route('login') }}">Log in</x-nav-link>
-                    @if (Route::has('register'))
-                        <x-nav-link href="{{ route('register') }}" class="ml-4">Register</x-nav-link>
+    {{-- navbar --}}
+    <nav class="bg-sky-800 border-b border-sky-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Left Section: Logo -->
+                <div class="flex">
+                    <div class="shrink-0 flex items-center">
+                        <a href="{{ route('home') }}">
+                            <x-application-mark class="block h-9 w-auto" />
+                        </a>
+                    </div>
+                </div>
+    
+                <!-- Right Section: Navigation Links -->
+                <div class="flex items-center space-x-4">
+                    @if (Route::has('login'))
+                        @auth
+                            <x-nav-link href="{{ url('/home') }}" :active="request()->routeIs('home')" class="text-white hover:text-gray-200">
+                                Dashboard
+                            </x-nav-link>
+                        @else
+                            <x-nav-link href="{{ route('login') }}" class="text-white hover:text-gray-200">Log in</x-nav-link>
+                            @if (Route::has('register'))
+                                <x-nav-link href="{{ route('register') }}" class="text-white hover:text-gray-200 ml-4">Register</x-nav-link>
+                            @endif
+                        @endauth
                     @endif
-                @endauth
+                </div>
             </div>
-        @endif
-    </x-navbar>
+        </div>
+    </nav>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+
+
+
+
+
+
 
     <!-- Hero Section -->
-    <div class="relative min-h-screen flex flex-col justify-center items-center bg-gradient-to-r from-blue-500 to-teal-500 text-white">
-        <div class="text-center">
-            <h1 class="text-4xl font-extrabold tracking-tight sm:text-6xl">Welcome to QMI</h1>
-            <p class="mt-4 max-w-xl mx-auto text-lg">
+    <div class="relative min-h-screen flex flex-col justify-center items-center text-white" 
+        style="background-image: url('{{ asset('/assets/bg/lgualaminos.jpg') }}'); background-size: cover; background-position: center;">
+        <!-- Overlay -->
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+
+            <!-- Content -->
+        <div class="relative z-10 text-center px-4">
+            <h1 class="text-4xl font-extrabold tracking-tight sm:text-6xl drop-shadow-md">
+                Welcome to QMI
+            </h1>
+            <p class="mt-4 max-w-xl mx-auto text-lg drop-shadow-md">
                 Streamline your services with the Queuing Management System for Alaminos City Hall.
             </p>
             <div class="mt-8 space-x-4">
@@ -54,17 +98,17 @@
                     <a href="{{ route('get-in-queue') }}">
                         <x-button color="white">Get in Line</x-button>
                     </a>
-                    
                 @else
                     <!-- Guests -->
                     <a href="{{ route('login') }}">
                         <x-button color="white">Log in to Get in Line</x-button>
                     </a>
-                
                 @endauth
             </div>
         </div>
     </div>
+
+
 
     <!-- Features Section -->
     <div class="max-w-7xl mx-auto py-16 px-6 lg:px-8 bg-white my-5">
