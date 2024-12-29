@@ -12,12 +12,12 @@
     {{-- icons fa --}}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 
-
     <!-- Styles -->
     @vite('resources/css/app.css')
     @livewireStyles
 </head>
 <body class="antialiased bg-gray-100">
+
     {{-- navbar --}}
     <nav class="bg-sky-800 border-b border-sky-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -49,159 +49,173 @@
             </div>
         </div>
     </nav>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-
-
-
-
-
-
 
     <!-- Hero Section -->
     <div class="relative min-h-screen flex flex-col justify-center items-center text-white" 
         style="background-image: url('{{ asset('/assets/bg/lgualaminos.jpg') }}'); background-size: cover; background-position: center;">
-        <!-- Overlay -->
         <div class="absolute inset-0 bg-black bg-opacity-50"></div>
-
-            <!-- Content -->
         <div class="relative z-10 text-center px-4">
-            <h1 class="text-4xl font-extrabold tracking-tight sm:text-6xl drop-shadow-md">
-                Welcome to QMI
-            </h1>
-            <p class="mt-4 max-w-xl mx-auto text-lg drop-shadow-md">
-                Streamline your services with the Queuing Management System for Alaminos City Hall.
+            <h1 class="text-4xl font-extrabold tracking-tight sm:text-6xl">Welcome to QMI Alaminos City Queueing System</h1>
+            <p class="mt-4 max-w-xl mx-auto text-lg">
+                Efficient, Hassle-Free Queue Management. Experience a smoother and more organized way of managing your time with QMI Alaminos City’s queueing system.
             </p>
             <div class="mt-8 space-x-4">
-                @auth
-                    <!-- Authenticated users -->
-                    <a href="{{ route('get-in-queue') }}">
-                        <x-button color="white">Get in Line</x-button>
-                    </a>
-                @else
-                    <!-- Guests -->
-                    <a href="{{ route('login') }}">
-                        <x-button color="white">Log in to Get in Line</x-button>
-                    </a>
-                @endauth
+                <a href="{{ route('get-in-queue') }}" class="inline-block">
+                    <button class="px-6 py-3 bg-white text-sky-800 font-semibold rounded-lg hover:bg-gray-200 transition duration-300">
+                        Get in Line
+                    </button>
+                </a>
             </div>
         </div>
     </div>
-
-
 
     <!-- Features Section -->
     <div class="max-w-7xl mx-auto py-16 px-6 lg:px-8 bg-white my-5">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">Key Features</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <!-- Feature 1 -->
-            <x-feature-card title="Efficient Queuing" icon="clock" color="blue">
-                Manage waiting times effectively with real-time queuing updates.
-            </x-feature-card>
+            <div class="p-6 bg-blue-100 rounded-lg shadow-md">
+                <div class="flex justify-center mb-4">
+                    <span class="text-blue-600 text-4xl">
+                        <i class="fas fa-clock"></i> <!-- FontAwesome Clock Icon -->
+                    </span>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Efficient Queuing</h3>
+                <p class="text-gray-700">
+                    Manage waiting times effectively with real-time queuing updates.
+                </p>
+            </div>
 
             <!-- Feature 2 -->
-            <x-feature-card title="User-Friendly Interface" icon="desktop-computer" color="green">
-                An intuitive system designed for quick navigation and ease of use for all.
-            </x-feature-card>
+            <div class="p-6 bg-green-100 rounded-lg shadow-md">
+                <div class="flex justify-center mb-4">
+                    <span class="text-green-600 text-4xl">
+                        <i class="fas fa-desktop"></i> <!-- FontAwesome Desktop Icon -->
+                    </span>
+                </div>
+                <h3 class="text-xl font-bold mb-2">User-Friendly Interface</h3>
+                <p class="text-gray-700">
+                    An intuitive system designed for quick navigation and ease of use for all.
+                </p>
+            </div>
 
             <!-- Feature 3 -->
-            <x-feature-card title="Multiple Services" icon="server" color="yellow">
-                Access various city services, from document requests to business permits.
-            </x-feature-card>
+            <div class="p-6 bg-yellow-100 rounded-lg shadow-md">
+                <div class="flex justify-center mb-4">
+                    <span class="text-yellow-600 text-4xl">
+                        <i class="fas fa-server"></i> <!-- FontAwesome Server Icon -->
+                    </span>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Multiple Services</h3>
+                <p class="text-gray-700">
+                    Access various city services, from document requests to business permits.
+                </p>
+            </div>
         </div>
     </div>
 
-    <!-- About Us Section -->
-    <div class="bg-white py-20 px-6 lg:px-8">
-        <div class="max-w-7xl mx-auto">
-            <h2 class="text-4xl font-extrabold text-center text-gray-800 mb-12">About QMI</h2>
-            <p class="text-center text-gray-600 text-lg mb-12">
-                QMI (Queuing Management System) transforms service delivery at Alaminos City Hall, ensuring seamless and accessible experiences for all citizens.
-            </p>
-
-            <div class="space-y-12">
-                <!-- Card 1 -->
-                <div class="flex flex-col md:flex-row items-center">
-                    <div class="w-1/2 bg-gray-100 shadow-xl p-8 flex rounded-lg items-center justify-center transition transform hover:scale-105">
-                        <div class="w-40 h-40 flex items-center justify-center bg-blue-500 text-white rounded-full">
-                            <i class="fas fa-clock text-6xl"></i>
-                        </div>
-                    </div>
-                    <div class="w-1/2 p-8 text-left">
-                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Efficiency</h3>
-                        <p class="text-gray-600 text-lg">
-                            Streamline city hall operations to deliver faster and more effective services to all citizens.
-                        </p>
-                    </div>
+    <!-- How It Works Section -->
+    <div class="max-w-7xl my-2 mx-auto py-12 px-6 lg:px-8 bg-gray-50">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">How It Works</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+            <!-- Step 1 -->
+            <div class="p-6 bg-sky-200 rounded-lg shadow-md">
+                <div class="text-4xl text-sky-600 mb-4">
+                    <i class="fas fa-user-plus"></i> <!-- FontAwesome User Plus Icon -->
                 </div>
-
-                <!-- Card 2 -->
-                <div class="flex flex-col md:flex-row items-center">
-
-                    <div class="w-1/2 p-8 text-left">
-                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Accessibility</h3>
-                        <p class="text-gray-600 text-lg">
-                            Designed to serve everyone, with a focus on priority services for PWD and senior citizens.
-                        </p>
-                    </div>
-                    <div class="w-1/2 bg-gray-100 shadow-xl p-8 flex rounded-lg items-center justify-center transition transform hover:scale-105">
-                        <div class="w-40 h-40 flex items-center justify-center bg-green-500 text-white rounded-full">
-                            <i class="fas fa-users text-6xl"></i>
-                        </div>
-                    </div>
-                
+                <h3 class="font-semibold text-lg text-sky-700">Register/Login</h3>
+                <p class="text-gray-700 mt-2">
+                    Sign up or log in to access your account.
+                </p>
+            </div>
+            <!-- Step 2 -->
+            <div class="p-6 bg-teal-100 rounded-lg shadow-md">
+                <div class="text-4xl text-teal-600 mb-4">
+                    <i class="fas fa-tasks"></i> <!-- FontAwesome Tasks Icon -->
                 </div>
+                <h3 class="font-semibold text-lg text-teal-700">Choose Your Service</h3>
+                <p class="text-gray-700 mt-2">
+                    Select the type of service you need.
+                </p>
+            </div>
+            <!-- Step 3 -->
+            <div class="p-6 bg-orange-100 rounded-lg shadow-md">
+                <div class="text-4xl text-orange-600 mb-4">
+                    <i class="fas fa-ticket-alt"></i> <!-- FontAwesome Ticket Icon -->
+                </div>
+                <h3 class="font-semibold text-lg text-orange-700">Get Your Queue Number</h3>
+                <p class="text-gray-700 mt-2">
+                    Instantly receive your queue ticket.
+                </p>
+            </div>
+            <!-- Step 4 -->
+            <div class="p-6 bg-red-100 rounded-lg shadow-md">
+                <div class="text-4xl text-red-600 mb-4">
+                    <i class="fas fa-chart-line"></i> <!-- FontAwesome Line Chart Icon -->
+                </div>
+                <h3 class="font-semibold text-lg text-red-700">Track Your Progress</h3>
+                <p class="text-gray-700 mt-2">
+                    Stay updated on your queue status.
+                </p>
+            </div>
+        </div>
+    </div>
 
-                <!-- Card 3 -->
-                <div class="flex flex-col md:flex-row items-center">
-                    <div class="w-1/2 bg-gray-100 shadow-xl p-8 flex rounded-lg items-center justify-center transition transform hover:scale-105">
-                        <div class="w-40 h-40 flex items-center justify-center bg-yellow-500 text-white rounded-full">
-                            <i class="fas fa-bolt text-6xl"></i>
-                        </div>
+    <!-- Benefits Section -->
+    <div class="bg-gray-50 py-12">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Benefits of Using Our Queueing System</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+                <!-- Benefit 1 -->
+                <div class="bg-blue-100 p-8 rounded-lg shadow-lg hover:shadow-2xl transition duration-300">
+                    <div class="flex justify-center mb-4 text-4xl text-blue-600">
+                        <i class="fas fa-clock"></i> <!-- FontAwesome Clock Icon -->
                     </div>
-                    <div class="w-1/2 p-8 text-left">
-                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Innovation</h3>
-                        <p class="text-gray-600 text-lg">
-                            Utilizes cutting-edge technology to provide modern, fast, and reliable public services.
-                        </p>
+                    <h3 class="text-xl font-semibold text-center mb-4 text-gray-800">No More Long Lines</h3>
+                    <p class="text-gray-600 text-center">
+                        Save yourself the stress of waiting in physical queues with our digital solution.
+                    </p>
+                </div>
+                <!-- Benefit 2 -->
+                <div class="bg-green-100 p-8 rounded-lg shadow-lg hover:shadow-2xl transition duration-300">
+                    <div class="flex justify-center mb-4 text-4xl text-green-600">
+                        <i class="fas fa-calendar-check"></i> <!-- FontAwesome Calendar Check Icon -->
                     </div>
+                    <h3 class="text-xl font-semibold text-center mb-4 text-gray-800">Better Time Management</h3>
+                    <p class="text-gray-600 text-center">
+                        Plan your day better with accurate queue time estimates and minimal wait times.
+                    </p>
+                </div>
+                <!-- Benefit 3 -->
+                <div class="bg-yellow-100 p-8 rounded-lg shadow-lg hover:shadow-2xl transition duration-300">
+                    <div class="flex justify-center mb-4 text-4xl text-yellow-600">
+                        <i class="fas fa-thumbs-up"></i> <!-- FontAwesome Thumbs Up Icon -->
+                    </div>
+                    <h3 class="text-xl font-semibold text-center mb-4 text-gray-800">Improved Customer Experience</h3>
+                    <p class="text-gray-600 text-center">
+                        A streamlined process ensures fast and reliable service delivery for every user.
+                    </p>
+                </div>
+                <!-- Benefit 4 -->
+                <div class="bg-purple-100 p-8 rounded-lg shadow-lg hover:shadow-2xl transition duration-300">
+                    <div class="flex justify-center mb-4 text-4xl text-purple-600">
+                        <i class="fas fa-wheelchair"></i> <!-- FontAwesome Wheelchair Icon -->
+                    </div>
+                    <h3 class="text-xl font-semibold text-center mb-4 text-gray-800">Accessibility for All</h3>
+                    <p class="text-gray-600 text-center">
+                        Our system is designed to be simple and accessible for everyone, including seniors and first-time users.
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 
-
-
-
-
     <!-- Footer Section -->
     <x-footer>
-        <div class="max-w-7xl mx-auto text-center text-white">
-            <p>QMI - Alaminos City Hall Queuing System</p>
-            <p>Laravel v{{ Illuminate\Foundation\Application::VERSION }} (PHP v{{ PHP_VERSION }})</p>
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 text-center text-white py-4">
+            <p>QMI - Queuing Management System for Alaminos City Hall</p>
         </div>
     </x-footer>
 
-    @livewireScripts
-    @vite('resources/js/app.js')
 </body>
 </html>

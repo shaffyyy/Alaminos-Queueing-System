@@ -18,9 +18,12 @@
                     @error('service') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
 
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition duration-200">
+                <button type="submit"
+                        onclick="return confirm('Are you sure you want to join the queue?');"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition duration-200">
                     Join Queue
                 </button>
+
             </form>
         </div>
     @else

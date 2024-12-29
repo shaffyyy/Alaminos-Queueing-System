@@ -26,55 +26,56 @@
             </div>
         @else
             @foreach($tickets as $ticket)
-                <div class="border border-gray-300 rounded-lg p-4 bg-gray-200 shadow-md hover:shadow-lg transition transform hover:scale-105">
-                    <div class="flex items-center justify-between">
-                        <!-- Ticket Information -->
-                        <div>
-                            <h2 class="text-lg font-bold text-blue-600">Queue Number: {{ $ticket->queue_number ?? 'N/A' }}</h2>
-                            <p class="text-sm text-gray-700"><strong>Service:</strong> {{ $ticket->service->name ?? 'N/A' }}</p>
-                            <p class="text-sm">
-                                <strong>Status:</strong> 
-                                <span class="@if($ticket->status === 'waiting') text-yellow-600 
-                                              @elseif($ticket->status === 'in-service') text-blue-600 
-                                              @elseif($ticket->status === 'completed') text-green-600 
-                                              @elseif($ticket->status === 'cancelled') text-red-600 
-                                              @endif font-semibold">
-                                    {{ ucfirst($ticket->status) }}
-                                </span>
-                            </p>
-                        </div>
-    
-                        <!-- Actions -->
-                        <div class="flex space-x-4">
-                            @if($ticket->status === 'completed')
-                                @if($this->hasFeedback($ticket->id))
-                                    <!-- Display Stars -->
-                                    <div class="flex space-x-1">
-                                        @for($i = 1; $i <= $this->getFeedbackRating($ticket->id); $i++)
-                                            <span class="text-yellow-500 text-xl">&#9733;</span>
-                                        @endfor
-                                        @for($i = $this->getFeedbackRating($ticket->id) + 1; $i <= 5; $i++)
-                                            <span class="text-gray-300 text-xl">&#9733;</span>
-                                        @endfor
-                                    </div>
-                                @else
-                                    <!-- Feedback Button -->
-                                    <button wire:click="openFeedbackModal({{ $ticket->id }})"
-                                            class="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition duration-200">
-                                        Leave Feedback
-                                    </button>
-                                @endif
+            <div class="border border-gray-300 rounded-lg p-4 bg-indigo-200 shadow-md hover:shadow-lg transition transform hover:scale-105">
+                <div class="flex items-center justify-between">
+                    <!-- Ticket Information -->
+                    <div>
+                        <h2 class="text-lg font-bold text-blue-600">Queue Number: {{ $ticket->queue_number ?? 'N/A' }}</h2>
+                        <p class="text-sm text-gray-700"><strong>Service:</strong> {{ $ticket->service->name ?? 'N/A' }}</p>
+                        <p class="text-sm">
+                            <strong>Status:</strong> 
+                            <span class="@if($ticket->status === 'waiting') text-yellow-600 
+                                          @elseif($ticket->status === 'in-service') text-blue-600 
+                                          @elseif($ticket->status === 'completed') text-green-600 
+                                          @elseif($ticket->status === 'cancelled') text-red-600 
+                                          @endif font-semibold">
+                                {{ ucfirst($ticket->status) }}
+                            </span>
+                        </p>
+                    </div>
+            
+                    <!-- Actions -->
+                    <div class="flex space-x-4">
+                        @if($ticket->status === 'completed')
+                            @if($this->hasFeedback($ticket->id))
+                                <!-- Display Stars -->
+                                <div class="flex space-x-1">
+                                    @for($i = 1; $i <= $this->getFeedbackRating($ticket->id); $i++)
+                                        <span class="text-yellow-500 text-xl">&#9733;</span>
+                                    @endfor
+                                    @for($i = $this->getFeedbackRating($ticket->id) + 1; $i <= 5; $i++)
+                                        <span class="text-gray-300 text-xl">&#9733;</span>
+                                    @endfor
+                                </div>
+                            @else
+                                <!-- Feedback Button -->
+                                <button wire:click="openFeedbackModal({{ $ticket->id }})"
+                                        class="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition duration-200">
+                                    Leave Feedback
+                                </button>
                             @endif
-    
-                            <!-- Delete Button -->
-                            <button wire:click="deleteTicket({{ $ticket->id }})"
-                                    onclick="return confirm('Are you sure you want to delete this ticket?')"
-                                    class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition duration-200">
-                                Delete
-                            </button>
-                        </div>
+                        @endif
+            
+                        <!-- Delete Button -->
+                        <button wire:click="deleteTicket({{ $ticket->id }})"
+                                onclick="if(!confirm('Are you sure you want to delete this ticket? This action cannot be undone.')) return false;"
+                                class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition duration-200">
+                            Delete
+                        </button>
                     </div>
                 </div>
+            </div>
+            
             @endforeach
         @endif
     </div>
