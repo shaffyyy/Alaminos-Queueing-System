@@ -88,4 +88,8 @@ public function exportToPDF(Request $request)
     {
         return view('cashier.queues.queues-index');
     }
+
+    public function visitPage(){
+        return view('cashier.visit-queue.visit-page');
+    }
 }

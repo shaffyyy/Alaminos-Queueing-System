@@ -1,9 +1,18 @@
 <div class="py-12" wire:poll.2s="loadQueues">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-gray-200 overflow-hidden shadow-xl sm:rounded-lg p-6">
+              
             @if($assignedWindow)
-                <h2 class="text-2xl font-bold mb-4 text-gray-700">Window: {{ $assignedWindow->name }}</h2>
-
+               <!-- Flex container for Window Name and Button -->
+               <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-2xl font-bold text-gray-700 whitespace-nowrap">Window: {{ $assignedWindow->name }}</h2>
+                    <a href="{{ route('cashier-visitPage') }}"
+                    class="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-200">
+                        Visit Other Queue
+                    </a>
+                </div>
+            
+            </div>
                 @if($queues->isEmpty())
                     <div class="text-center text-gray-500 py-8">
                         <p>No verified queues available for this window.</p>
@@ -29,9 +38,9 @@
                                         <td class="py-3 px-4 border text-gray-600">{{ ucfirst($queue->status) }}</td>
                                         <td class="py-3 px-4 border">
                                             <!-- Notify Button -->
-                                            <button onclick="announceQueueNumber('{{ $queue->queue_number }}')"
+                                            <button onclick="callQueueNumber('{{ $queue->queue_number }}')"
                                                 class="bg-yellow-500 text-white py-1 px-3 rounded-lg hover:bg-yellow-600 transition duration-200">
-                                                Notify
+                                                Call
                                             </button>
                                             @if($queue->status === 'waiting')
                                                 <button wire:click="startService({{ $queue->id }})"
@@ -57,6 +66,7 @@
                         </table>
                     </div>
                 @endif
+                
             @else
                 <div class="text-center text-gray-500 py-8">
                     <p>No window assigned to this account.</p>
@@ -97,6 +107,17 @@
         function announceQueueNumber(queueNumber) {
             if ('speechSynthesis' in window) {
                 const message = new SpeechSynthesisUtterance(`Now serving queue number ${queueNumber}`);
+                message.lang = 'en-US'; // You can adjust this for different languages
+                message.rate = 1; // Speed of the voice
+                message.pitch = 1; // Pitch of the voice
+                window.speechSynthesis.speak(message);
+            } else {
+                alert('Sorry, your browser does not support voice announcements.');
+            }
+        }
+        function callQueueNumber(queueNumber) {
+            if ('speechSynthesis' in window) {
+                const message = new SpeechSynthesisUtterance(`Please proceed to the window, number ${queueNumber}`);
                 message.lang = 'en-US'; // You can adjust this for different languages
                 message.rate = 1; // Speed of the voice
                 message.pitch = 1; // Pitch of the voice

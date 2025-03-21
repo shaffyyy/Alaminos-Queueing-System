@@ -172,6 +172,9 @@ Route::get('/cashier/home', [CashierController::class, 'index'])->name('cashier-
 // cashier queues links
 Route::get('/cashier/queue', [CashierController::class, 'showQueue'])->name('cashier-queue');
 
+// cashier Visit queues links
+Route::get('/cashier/visitPage', [CashierController::class, 'visitPage'])->name('cashier-visitPage');
+
 // cashier reports links
 Route::get('/cashier/reports', [CashierController::class, 'showReports'])->name('cashier-reports');
 
